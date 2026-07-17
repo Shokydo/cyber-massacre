@@ -30,28 +30,28 @@
   }
 }
 
-function drawChar2D(x, y, bodyW, bodyH, headSize, color, angle, armLen, armW, isPlayer) {
+function drawChar2D(x, y, bodySize, headSize, color, angle, armLen, isPlayer) {
   const isHit = isPlayer ? (player.invuln > 0 && Math.floor(player.invuln / 3) % 2) : false;
   const drawColor = isHit ? '#fff' : color;
 
   // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
-  ctx.ellipse(x, y + 2, bodyW * 0.4, bodyW * 0.15, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 2, bodySize * 0.4, bodySize * 0.15, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Body - square
+  // Body - SQUARE
   ctx.fillStyle = drawColor;
-  ctx.fillRect(x - bodyW / 2, y - bodyH, bodyW, bodyH);
+  ctx.fillRect(x - bodySize / 2, y - bodySize, bodySize, bodySize);
   
   // Body outline
   ctx.strokeStyle = 'rgba(0,0,0,0.4)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(x - bodyW / 2, y - bodyH, bodyW, bodyH);
+  ctx.strokeRect(x - bodySize / 2, y - bodySize, bodySize, bodySize);
 
-  // Head - square on top
+  // Head - SMALL SQUARE on top
   const headX = x - headSize / 2;
-  const headY = y - bodyH - headSize;
+  const headY = y - bodySize - headSize;
   ctx.fillStyle = drawColor;
   ctx.fillRect(headX, headY, headSize, headSize);
   
@@ -73,16 +73,16 @@ function drawChar2D(x, y, bodyW, bodyH, headSize, color, angle, armLen, armW, is
   // Weapon arm - rotates to face angle
   if (armLen > 0) {
     ctx.save();
-    ctx.translate(x, y - bodyH * 0.5);
+    ctx.translate(x, y - bodySize * 0.5);
     ctx.rotate(angle);
     
     // Arm
     ctx.fillStyle = drawColor;
-    ctx.fillRect(4, -armW / 2, armLen, armW);
+    ctx.fillRect(4, -2, armLen, 4);
     
     // Weapon tip (bright)
     ctx.fillStyle = isPlayer ? '#fff' : '#ffcc00';
-    ctx.fillRect(4 + armLen - 2, -armW / 2 - 1, 3, armW + 2);
+    ctx.fillRect(4 + armLen - 2, -3, 3, 6);
     
     ctx.restore();
   }
@@ -94,7 +94,7 @@ function drawChar2D(x, y, bodyW, bodyH, headSize, color, angle, armLen, armW, is
     ctx.shadowBlur = 18;
     ctx.fillStyle = color;
     ctx.globalAlpha = 0.12;
-    ctx.fillRect(x - bodyW/2 - 4, headY - 4, bodyW + 8, bodyH + headSize + 8);
+    ctx.fillRect(x - bodySize/2 - 4, headY - 4, bodySize + 8, bodySize + headSize + 8);
     ctx.globalAlpha = 1;
     ctx.restore();
   }
@@ -168,7 +168,7 @@ function draw() {
     const s = e.size;
     if (e.type.tower) {
       // Tower: body 28x28, head 18x18
-      drawChar2D(0, 0, 28, 28, 18, e.type.color, 0, 0, 0, false);
+      drawChar2D(0, 0, 28, 18, e.type.color, 0, 0, false);
       ctx.fillStyle = '#000';
       ctx.fillRect(-s*0.3, -s*1.2, s*0.6, s*0.6);
       ctx.fillStyle = e.type.color; ctx.fillRect(-s*0.15, -s*0.9, s*0.3, s*0.3);
@@ -176,11 +176,11 @@ function draw() {
       ctx.beginPath(); ctx.arc(0, -s, s + 5, 0, Math.PI*2); ctx.stroke();
     } else {
       const eAngle = Math.atan2(player.y - e.y, player.x - e.x);
-      // Regular enemy: body 24x24, head 14x14
-      drawChar2D(0, 0, 24, 24, 14, e.type.color, eAngle, 14, 4, false);
+      // Regular enemy: body 24x24, head 12x12
+      drawChar2D(0, 0, 24, 12, e.type.color, eAngle, 14, false);
     }
     if (e.type.boss) {
-      const charTop = -(24 + 14*2);
+      const charTop = -(24 + 12*2);
       ctx.fillStyle = '#400'; ctx.fillRect(-40, charTop - 15, 80, 6);
       ctx.fillStyle = '#f00'; ctx.fillRect(-40, charTop - 15, 80 * (e.hp/e.maxHp), 6);
       ctx.fillStyle = '#ff0'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.fillText(e.type.name, 0, charTop - 20);
@@ -287,19 +287,17 @@ function draw() {
   const pSwing = player.attackCd > 8 ? Math.sin((player.attackCd - 8) * 0.4) : 0;
   const px = player.x - camera.x, py = player.y - camera.y + pBob;
 
-  // Player: body 24x24 (square), head 16x16 (smaller square)
-  const bodyW = 24;
-  const bodyH = 24;
-  const headSize = 16;
+  // Player: body 24x24 (square), head 12x12 (smaller square)
+  const bodySize = 24;
+  const headSize = 12;
   const armLen = playerClass === 'melee' ? 18 : 14;
-  const armW = playerClass === 'melee' ? 6 : 4;
 
   ctx.save();
-  drawChar2D(px, py, bodyW, bodyH, headSize, classes[playerClass].color, player.angle, armLen, armW, true);
+  drawChar2D(px, py, bodySize, headSize, classes[playerClass].color, player.angle, armLen, true);
 
   if (playerClass === 'melee') {
     const mwX = px + Math.cos(player.angle) * (4 + armLen);
-    const mwY = py - bodyH * 0.5 + Math.sin(player.angle) * 4;
+    const mwY = py - bodySize * 0.5 + Math.sin(player.angle) * 4;
     ctx.fillStyle = classes[playerClass].color; ctx.shadowColor = classes[playerClass].color; ctx.shadowBlur = 8;
     ctx.fillRect(mwX - 3, mwY - 3, 6, 6);
     ctx.shadowBlur = 0;
@@ -307,13 +305,13 @@ function draw() {
     const pulse = Math.sin(Date.now() * 0.008) * 0.3 + 0.7;
     ctx.fillStyle = classes[playerClass].color; ctx.shadowColor = classes[playerClass].color; ctx.shadowBlur = 15 * pulse;
     ctx.beginPath();
-    ctx.arc(px, py - bodyH - headSize + 2, headSize + 4, 0, Math.PI * 2);
+    ctx.arc(px, py - bodySize - headSize + 2, headSize + 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   } else if (playerClass === 'tech' && techieCombatDrone && techieCombatDrone.life > 0) {
     ctx.fillStyle = '#0ff'; ctx.shadowColor = '#0ff'; ctx.shadowBlur = 8;
     ctx.beginPath();
-    ctx.arc(px, py - bodyH - headSize * 2 - 5, 3, 0, Math.PI * 2);
+    ctx.arc(px, py - bodySize - headSize * 2 - 5, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   }
