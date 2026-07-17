@@ -1,5 +1,4 @@
-﻿let keys = {};
-let isRebinding = false;
+﻿let isRebinding = false;
 
 document.addEventListener('keydown', e => {
   if (isRebinding) return;
