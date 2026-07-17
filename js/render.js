@@ -30,7 +30,7 @@
   }
 }
 
-function drawChar2D(x, y, bodyW, bodyH, headR, color, angle, armLen, armW, isPlayer) {
+function drawChar2D(x, y, bodyW, bodyH, headSize, color, angle, armLen, armW, isPlayer) {
   const isHit = isPlayer ? (player.invuln > 0 && Math.floor(player.invuln / 3) % 2) : false;
   const drawColor = isHit ? '#fff' : color;
 
@@ -40,7 +40,7 @@ function drawChar2D(x, y, bodyW, bodyH, headR, color, angle, armLen, armW, isPla
   ctx.ellipse(x, y + 2, bodyW * 0.4, bodyW * 0.15, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Body - flat rect
+  // Body - square
   ctx.fillStyle = drawColor;
   ctx.fillRect(x - bodyW / 2, y - bodyH, bodyW, bodyH);
   
@@ -49,27 +49,26 @@ function drawChar2D(x, y, bodyW, bodyH, headR, color, angle, armLen, armW, isPla
   ctx.lineWidth = 1;
   ctx.strokeRect(x - bodyW / 2, y - bodyH, bodyW, bodyH);
 
-  // Head - flat circle on top
+  // Head - square on top
+  const headX = x - headSize / 2;
+  const headY = y - bodyH - headSize;
   ctx.fillStyle = drawColor;
-  ctx.beginPath();
-  ctx.arc(x, y - bodyH - headR + 2, headR, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(headX, headY, headSize, headSize);
   
   // Head outline
   ctx.strokeStyle = 'rgba(0,0,0,0.4)';
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(x, y - bodyH - headR + 2, headR, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.strokeRect(headX, headY, headSize, headSize);
 
   // Eyes - show direction
-  const eyeOffX = Math.cos(angle) * headR * 0.35;
-  const eyeOffY = Math.sin(angle) * headR * 0.25;
-  const eyeY = y - bodyH - headR + 2 + eyeOffY;
+  const eyeOffX = Math.cos(angle) * headSize * 0.25;
+  const eyeOffY = Math.sin(angle) * headSize * 0.2;
+  const eyeX = x + eyeOffX;
+  const eyeY = headY + headSize * 0.5 + eyeOffY;
   ctx.fillStyle = '#000';
-  ctx.fillRect(x + eyeOffX - 3, eyeY - 2, 6, 4);
+  ctx.fillRect(eyeX - 2, eyeY - 1, 4, 2);
   ctx.fillStyle = '#fff';
-  ctx.fillRect(x + eyeOffX - 1, eyeY, 2, 2);
+  ctx.fillRect(eyeX, eyeY, 1, 1);
 
   // Weapon arm - rotates to face angle
   if (armLen > 0) {
@@ -83,7 +82,7 @@ function drawChar2D(x, y, bodyW, bodyH, headR, color, angle, armLen, armW, isPla
     
     // Weapon tip (bright)
     ctx.fillStyle = isPlayer ? '#fff' : '#ffcc00';
-    ctx.fillRect(4 + armLen - 3, -armW / 2 - 1, 4, armW + 2);
+    ctx.fillRect(4 + armLen - 2, -armW / 2 - 1, 3, armW + 2);
     
     ctx.restore();
   }
@@ -95,7 +94,7 @@ function drawChar2D(x, y, bodyW, bodyH, headR, color, angle, armLen, armW, isPla
     ctx.shadowBlur = 18;
     ctx.fillStyle = color;
     ctx.globalAlpha = 0.12;
-    ctx.fillRect(x - bodyW/2 - 4, y - bodyH - headR*2 - 4, bodyW + 8, bodyH + headR*2 + 8);
+    ctx.fillRect(x - bodyW/2 - 4, headY - 4, bodyW + 8, bodyH + headSize + 8);
     ctx.globalAlpha = 1;
     ctx.restore();
   }
@@ -168,7 +167,7 @@ function draw() {
     if (e.type.alpha) ctx.globalAlpha = e.type.alpha;
     const s = e.size;
     if (e.type.tower) {
-      drawChar2D(0, 0, s*2, s*2, s*0.6, e.type.color, 0, 0, 0, false);
+      drawChar2D(0, 0, s*1.6, s*1.6, s*0.5, e.type.color, 0, 0, 0, false);
       ctx.fillStyle = '#000';
       ctx.fillRect(-s*0.3, -s*1.2, s*0.6, s*0.6);
       ctx.fillStyle = e.type.color; ctx.fillRect(-s*0.15, -s*0.9, s*0.3, s*0.3);
@@ -176,10 +175,10 @@ function draw() {
       ctx.beginPath(); ctx.arc(0, -s, s + 5, 0, Math.PI*2); ctx.stroke();
     } else {
       const eAngle = Math.atan2(player.y - e.y, player.x - e.x);
-      drawChar2D(0, 0, s*2, s*2, s*0.6, e.type.color, eAngle, s*0.8, s*0.4, false);
+      drawChar2D(0, 0, s*1.6, s*1.6, s*0.5, e.type.color, eAngle, s*0.8, s*0.4, false);
     }
     if (e.type.boss) {
-      const charTop = -(s*2 + s*0.6*2);
+      const charTop = -(s*1.6 + s*0.5*2);
       ctx.fillStyle = '#400'; ctx.fillRect(-40, charTop - 15, 80, 6);
       ctx.fillStyle = '#f00'; ctx.fillRect(-40, charTop - 15, 80 * (e.hp/e.maxHp), 6);
       ctx.fillStyle = '#ff0'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.fillText(e.type.name, 0, charTop - 20);
@@ -286,14 +285,14 @@ function draw() {
   const pSwing = player.attackCd > 8 ? Math.sin((player.attackCd - 8) * 0.4) : 0;
   const px = player.x - camera.x, py = player.y - camera.y + pBob;
 
-  const bodyW = playerClass === 'tech' ? 28 : 24;
-  const bodyH = playerClass === 'tech' ? 32 : 28;
-  const headR = playerClass === 'tech' ? 10 : 8;
-  const armLen = playerClass === 'melee' ? 20 : 16;
-  const armW = playerClass === 'melee' ? 7 : 5;
+  const bodyW = playerClass === 'tech' ? 24 : 20;
+  const bodyH = playerClass === 'tech' ? 26 : 22;
+  const headSize = playerClass === 'tech' ? 10 : 8;
+  const armLen = playerClass === 'melee' ? 18 : 14;
+  const armW = playerClass === 'melee' ? 6 : 4;
 
   ctx.save();
-  drawChar2D(px, py, bodyW, bodyH, headR, classes[playerClass].color, player.angle, armLen, armW, true);
+  drawChar2D(px, py, bodyW, bodyH, headSize, classes[playerClass].color, player.angle, armLen, armW, true);
 
   if (playerClass === 'melee') {
     const mwX = px + Math.cos(player.angle) * (4 + armLen);
@@ -305,13 +304,13 @@ function draw() {
     const pulse = Math.sin(Date.now() * 0.008) * 0.3 + 0.7;
     ctx.fillStyle = classes[playerClass].color; ctx.shadowColor = classes[playerClass].color; ctx.shadowBlur = 15 * pulse;
     ctx.beginPath();
-    ctx.arc(px, py - bodyH - headR + 2, headR + 4, 0, Math.PI * 2);
+    ctx.arc(px, py - bodyH - headSize + 2, headSize + 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   } else if (playerClass === 'tech' && techieCombatDrone && techieCombatDrone.life > 0) {
     ctx.fillStyle = '#0ff'; ctx.shadowColor = '#0ff'; ctx.shadowBlur = 8;
     ctx.beginPath();
-    ctx.arc(px, py - bodyH - headR * 2 - 5, 3, 0, Math.PI * 2);
+    ctx.arc(px, py - bodyH - headSize * 2 - 5, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   }
