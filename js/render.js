@@ -30,6 +30,53 @@
   }
 }
 
+function drawCube(x, y, w, h, d, faceColor, strokeOn, glowOn, glowColor) {
+  const hw = w / 2, hd = d / 2;
+  const topFace = [
+    { x: x - hw, y: y - h - hd },
+    { x: x,      y: y - h - d },
+    { x: x + hw, y: y - h - hd },
+    { x: x,      y: y - h }
+  ];
+  const leftFace = [
+    { x: x - hw, y: y - h - hd },
+    { x: x,      y: y - h },
+    { x: x,      y: y },
+    { x: x - hw, y: y - hd }
+  ];
+  const rightFace = [
+    { x: x + hw, y: y - h - hd },
+    { x: x,      y: y - h },
+    { x: x,      y: y },
+    { x: x + hw, y: y - hd }
+  ];
+  function drawPoly(pts, fill) {
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath(); ctx.fill();
+    if (strokeOn) { ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.stroke(); }
+  }
+  drawPoly(topFace, adjustBrightness(faceColor, 30));
+  drawPoly(leftFace, adjustBrightness(faceColor, -30));
+  drawPoly(rightFace, adjustBrightness(faceColor, -10));
+  if (glowOn) {
+    ctx.shadowColor = glowColor || faceColor; ctx.shadowBlur = 15;
+    drawPoly(topFace, 'rgba(0,0,0,0)'); drawPoly(leftFace, 'rgba(0,0,0,0)'); drawPoly(rightFace, 'rgba(0,0,0,0)');
+    ctx.shadowBlur = 0;
+  }
+}
+
+function adjustBrightness(hex, amount) {
+  let h = hex.slice(1);
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const r = Math.min(255, Math.max(0, parseInt(h.slice(0,2),16) + amount));
+  const g = Math.min(255, Math.max(0, parseInt(h.slice(2,4),16) + amount));
+  const b = Math.min(255, Math.max(0, parseInt(h.slice(4,6),16) + amount));
+  return `rgb(${r},${g},${b})`;
+}
+
 function draw() {
   ctx.fillStyle = '#05000d';
   ctx.fillRect(0,0,W,H);
@@ -95,21 +142,27 @@ function draw() {
     if (sx < -50 || sx > W+50 || sy < -50 || sy > H+50) return;
     ctx.save(); ctx.translate(sx, sy);
     if (e.type.alpha) ctx.globalAlpha = e.type.alpha;
-    ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.type.color;
+    const eColor = e.hitFlash > 0 ? '#fff' : e.type.color;
     ctx.shadowColor = e.type.color; ctx.shadowBlur = 12;
     const s = e.size;
     if (e.type.tower) {
-      ctx.fillRect(-s, -s, s*2, s*2); ctx.fillStyle = '#000'; ctx.shadowBlur = 0;
-      ctx.fillRect(-s*0.3, -s*0.3, s*0.6, s*0.6); ctx.fillStyle = e.type.color; ctx.fillRect(-s*0.15, -s*0.15, s*0.3, s*0.3);
-      ctx.strokeStyle = e.type.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, s + 5, 0, Math.PI*2); ctx.stroke();
+      drawCube(0, 0, s*2, s*2, s*1.5, eColor, false, true, e.type.color);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(-s*0.3, -s*0.3, s*0.6, s*0.6);
+      ctx.fillStyle = e.type.color; ctx.fillRect(-s*0.15, -s*0.15, s*0.3, s*0.3);
+      ctx.strokeStyle = e.type.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, s + 5, 0, Math.PI*2); ctx.stroke();
     } else {
-      ctx.fillRect(-s, -s, s*2, s*2); ctx.fillStyle = '#000'; ctx.shadowBlur = 0;
-      ctx.fillRect(-s*0.5, -s*0.3, s*0.3, s*0.3); ctx.fillRect(s*0.2, -s*0.3, s*0.3, s*0.3);
+      drawCube(0, 0, s*2, s*2, s*1.5, eColor, false, true, e.type.color);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(-s*0.5, -s*0.3, s*0.3, s*0.3);
+      ctx.fillRect(s*0.2, -s*0.3, s*0.3, s*0.3);
     }
     if (e.type.boss) {
-      ctx.fillStyle = '#400'; ctx.fillRect(-40, -s-15, 80, 6);
-      ctx.fillStyle = '#f00'; ctx.fillRect(-40, -s-15, 80 * (e.hp/e.maxHp), 6);
-      ctx.fillStyle = '#ff0'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.fillText(e.type.name, 0, -s-20);
+      const cubeTop = -(s*2 + s*1.5);
+      ctx.fillStyle = '#400'; ctx.fillRect(-40, cubeTop - 15, 80, 6);
+      ctx.fillStyle = '#f00'; ctx.fillRect(-40, cubeTop - 15, 80 * (e.hp/e.maxHp), 6);
+      ctx.fillStyle = '#ff0'; ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.fillText(e.type.name, 0, cubeTop - 20);
     }
     ctx.restore(); ctx.globalAlpha = 1;
   });
@@ -207,13 +260,69 @@ function draw() {
     ctx.beginPath(); ctx.arc(player.x - camera.x, player.y - camera.y, 20 + charge * 15, 0, Math.PI*2 * charge); ctx.stroke(); ctx.shadowBlur = 0;
   }
   
-  ctx.save(); ctx.translate(player.x - camera.x, player.y - camera.y); ctx.rotate(player.angle);
-  const pColor = player.invuln > 0 && Math.floor(player.invuln/3)%2 ? 'transparent' : classes[playerClass].color;
-  ctx.fillStyle = pColor; ctx.shadowColor = classes[playerClass].color; ctx.shadowBlur = 15;
-  ctx.fillRect(-player.size, -player.size, player.size*2, player.size*2);
-  ctx.fillStyle = classes[playerClass].color; ctx.shadowColor = classes[playerClass].color;
-  ctx.fillRect(player.size, -2, 15, 4);
-  ctx.fillStyle = '#000'; ctx.shadowBlur = 0; ctx.fillRect(2, -4, 6, 3);
+  const p3DTime = Date.now() * 0.006;
+  const pMoving = (keys['w']||keys['a']||keys['s']||keys['d']||keys['ц']||keys['ф']||keys['в']||keys['ы']);
+  const pBob = pMoving ? Math.sin(p3DTime * 2.5) * 3 : Math.sin(p3DTime * 1.2) * 1.5;
+  const pSwing = player.attackCd > 8 ? Math.sin((player.attackCd - 8) * 0.4) * 1.5 : 0;
+  const pHitFlash = player.invuln > 0 && Math.floor(player.invuln / 3) % 2;
+  const pColor = pHitFlash ? '#fff' : classes[playerClass].color;
+  const pGlowColor = classes[playerClass].color;
+  const px = player.x - camera.x, py = player.y - camera.y + pBob;
+
+  ctx.save();
+  drawCube(px, py, 28, 30, 20, pColor, false, true, pGlowColor);
+
+  const headW = playerClass === 'tech' ? 22 : 18;
+  const headD = playerClass === 'tech' ? 16 : 12;
+  const headH = 16;
+  drawCube(px, py - 30 - headH + 2, headW, headH, headD, pColor, false, true, pGlowColor);
+
+  ctx.save();
+  ctx.translate(px, py - 15);
+  ctx.rotate(player.angle);
+  const armLen = playerClass === 'melee' ? 22 : 18;
+  const armW = playerClass === 'melee' ? 8 : 5;
+  const armD = playerClass === 'melee' ? 6 : 4;
+  const armSwing = pSwing * 20;
+  ctx.save();
+  ctx.rotate(armSwing * Math.PI / 180);
+  ctx.fillStyle = pColor;
+  ctx.shadowColor = pGlowColor; ctx.shadowBlur = 10;
+  ctx.fillRect(8, -armW / 2, armLen, armW);
+  ctx.fillStyle = adjustBrightness(pColor, -30);
+  ctx.fillRect(8, armW / 2 - 1, armLen, armD);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(8 + armLen - 2, -armW / 2 - 1, 3, armW + 2);
+  ctx.restore();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(px + Math.cos(player.angle) * 6, py - 22 + Math.sin(player.angle) * 2);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(-3, -2, 6, 4);
+  ctx.fillStyle = pGlowColor;
+  ctx.shadowColor = pGlowColor; ctx.shadowBlur = 8;
+  ctx.fillRect(-1, -1, 3, 2);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  if (playerClass === 'melee') {
+    const mwX = px + Math.cos(player.angle) * 8 + armLen * Math.cos(player.angle);
+    const mwY = py - 15 + Math.sin(player.angle) * 8 + armLen * Math.sin(player.angle);
+    ctx.fillStyle = pGlowColor; ctx.shadowColor = pGlowColor; ctx.shadowBlur = 8;
+    ctx.fillRect(mwX - 3, mwY - 3, 6, 6);
+    ctx.shadowBlur = 0;
+  } else if (playerClass === 'magic') {
+    const pulse = Math.sin(Date.now() * 0.008) * 0.3 + 0.7;
+    ctx.fillStyle = pGlowColor; ctx.shadowColor = pGlowColor; ctx.shadowBlur = 15 * pulse;
+    ctx.beginPath(); ctx.arc(px, py - 30 - headH, headW * 0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+  } else if (playerClass === 'tech' && techieCombatDrone && techieCombatDrone.life > 0) {
+    ctx.fillStyle = '#0ff'; ctx.shadowColor = '#0ff'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(px, py - 30, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
   ctx.restore();
   
   swordSwings.forEach(s => {
