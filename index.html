@@ -14,15 +14,15 @@
   <h1>NEON ROGUE</h1>
   <p>// ВЫБЕРИ КЛАСС //</p>
   <div id="classSelect">
-    <button class="classBtn" style="border-color:#f0f; color:#f0f" onmouseover="playSound('ui_hover')" onclick="startGame('melee')">
+    <button class="classBtn" style="border-color:#f0f; color:#f0f" onmouseover="playSound('ui_hover')" onclick="startMission('melee')">
       <span class="cname">ЭДЖРАННЕР</span>
       <span class="cdesc">Ближний бой, высокий урон<br>SHIFT-РЫВОК  ЛКМ-РАЗРЕЗ  ПКМ-НОЖИ  3-МЕЧИ</span>
     </button>
-    <button class="classBtn" style="border-color:#a0f; color:#a0f" onmouseover="playSound('ui_hover')" onclick="startGame('magic')">
+    <button class="classBtn" style="border-color:#a0f; color:#a0f" onmouseover="playSound('ui_hover')" onclick="startMission('magic')">
       <span class="cname">НЕТРАННЕР</span>
       <span class="cdesc">Взлом, кибернетика<br>SHIFT-РЫВОК  1-ВЗЛОМ  2-ДЕМОН  3-СТЕНА</span>
     </button>
-    <button class="classBtn" style="border-color:#ff0; color:#ff0" onmouseover="playSound('ui_hover')" onclick="startGame('tech')">
+    <button class="classBtn" style="border-color:#ff0; color:#ff0" onmouseover="playSound('ui_hover')" onclick="startMission('tech')">
       <span class="cname">ТЕХНИК</span>
       <span class="cdesc">Пистолет, щит, гаджеты<br>SHIFT-РЫВОК  ЛКМ-ПИСТОЛЕТ  ПКМ-ЩИТ  1-ТУРЕЛЬ  2-ДРОН  3-МЕХ</span>
     </button>
@@ -117,6 +117,16 @@
 
 <div id="crt-overlay"></div>
 
+<div id="yt-player" style="position:absolute;top:-9999px;left:-9999px;"></div>
+<div id="fade-overlay"></div>
+<div id="train-sequence">
+  <div class="train-window">
+    <div class="neon-streaks"></div>
+    <div class="train-rain"></div>
+  </div>
+  <h2 class="train-text">ПРИБЫТИЕ В СЕКТОР 7...</h2>
+</div>
+
 <script src="js/audio.js"></script>
 <script src="js/data.js"></script>
 <script src="js/input.js"></script>
@@ -126,5 +136,6 @@
 <script src="js/update.js"></script>
 <script src="js/render.js"></script>
 <script src="js/main.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
