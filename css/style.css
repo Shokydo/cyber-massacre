@@ -49,7 +49,10 @@ body {
 #ui div { margin: 3px 0; }
 
 #ui { position: fixed; top: 10px; left: 10px; min-width: 220px; z-index: 10; font-size: 14px; }
-#weapon { position: fixed; bottom: 10px; left: 10px; border-color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); z-index: 10; font-size: 13px; }
+#weapon {
+  position: fixed; bottom: 10px; left: 10px; border-color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); z-index: 10; font-size: 13px;
+  display: none;
+}
 #controls { position: fixed; bottom: 10px; right: 10px; font-size: 11px; z-index: 10; }
 .key { color: var(--neon-yellow); font-weight: bold; }
 
@@ -132,7 +135,7 @@ body {
 .classBtn .cdesc { font-size: 12px; opacity: 0.8; line-height: 1.4; font-family: 'Rajdhani', sans-serif; }
 
 /* --- ПАНЕЛЬ СПОСОБНОСТЕЙ --- */
-#abilityBar { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 10; pointer-events: none; }
+#abilityBar { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 10; pointer-events: none; }
 .ab-slot {
   width: 60px; height: 60px; background: var(--bg-panel); border: 2px solid #333;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -141,8 +144,8 @@ body {
 }
 .ab-slot .ab-key { color: var(--neon-yellow); font-size: 18px; font-weight: bold; font-family: 'Orbitron', sans-serif; }
 .ab-slot .ab-name { color: var(--neon-cyan); font-size: 9px; text-align: center; line-height: 1.1; margin-top: 4px; font-family: 'Share Tech Mono', monospace; }
-.ab-slot .ab-cd-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: none; }
-.ab-slot .ab-cd-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--neon-red); font-size: 16px; font-weight: bold; font-family: 'Orbitron', sans-serif; z-index: 1; }
+.ab-slot .ab-cd-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.75); display: none; }
+.ab-slot .ab-cd-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--neon-red); font-size: 16px; font-weight: bold; font-family: 'Orbitron', sans-serif; z-index: 1; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
 .ab-slot.ult-slot { border-color: var(--neon-pink); }
 .ab-slot.ult-slot .ab-key { color: var(--neon-pink); }
 
@@ -180,7 +183,7 @@ body {
 
 /* --- МИНИКАРТА --- */
 #minimap {
-  position: fixed; bottom: 10px; left: 10px;
+  position: fixed; top: 50%; left: 10px; transform: translateY(-50%);
   width: 180px; height: 180px;
   background: rgba(0,0,0,0.8);
   border: 2px solid var(--neon-pink);
@@ -189,7 +192,7 @@ body {
 }
 
 /* --- ДЕБАГ --- */
-#debug { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; }
+#debug { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; display: none; }
 
 /* --- МЕНЮ ПРОКАЧКИ --- */
 #skillMenu {
