@@ -195,40 +195,20 @@ function lobbySelectClass() {
   hud.style.opacity = '0';
   fade.style.opacity = '1';
   setTimeout(() => {
-    startMetro(lobbySelectedClass);
+    const train = document.getElementById('train-sequence');
+    train.style.display = 'flex';
+    fade.style.opacity = '0';
+
+    setTimeout(() => {
+      fade.style.opacity = '1';
+      setTimeout(() => {
+        train.style.display = 'none';
+        fade.style.opacity = '0';
+        startGame(lobbySelectedClass);
+        changeMusic(MUSIC_GAME);
+      }, 1500);
+    }, 4500);
   }, 1500);
-}
-
-function startMetro(cls) {
-  const fade = document.getElementById('fade-overlay');
-  const metro = document.getElementById('metro-sequence');
-  metro.style.display = 'flex';
-  fade.style.opacity = '0';
-
-  setTimeout(() => {
-    fade.style.opacity = '1';
-    setTimeout(() => {
-      metro.style.display = 'none';
-      startTrain(cls);
-    }, 1500);
-  }, 4000);
-}
-
-function startTrain(cls) {
-  const fade = document.getElementById('fade-overlay');
-  const train = document.getElementById('train-sequence');
-  train.style.display = 'flex';
-  fade.style.opacity = '0';
-
-  setTimeout(() => {
-    fade.style.opacity = '1';
-    setTimeout(() => {
-      train.style.display = 'none';
-      fade.style.opacity = '0';
-      startGame(cls);
-      changeMusic(MUSIC_GAME);
-    }, 1500);
-  }, 4500);
 }
 
 window.enterLobby = enterLobby;
