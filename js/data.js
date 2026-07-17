@@ -1,24 +1,22 @@
-// === ИСПРАВЛЕНИЕ: Глобальные переменные (объявляются один раз в data.js) ===
+const W = 800;
+const H = 600;
+let gameRunning = false;
+let gamePaused = false;
+let keys = {};
+let isRebinding = false;
+let mouse = { x: W / 2, y: H / 2, down: false };
+let playerClass = 'melee';
+let camera = { x: 0, y: 0 };
+
+// === ДАЛЕЕ ИДЕТ ТВОЙ ОРИГИНАЛЬНЫЙ КОД (классы, враги и т.д.) ===
 // NOTE: эти значения используются глобально в нескольких файлах.
 // Если data.js случайно подгружается повторно, var/глобальные присваивания предотвращают SyntaxError.
 // Avoid redeclaration crashes if this script is evaluated twice.
 // Use global-safe assignments.
-var W = (typeof window !== 'undefined' && window.W) ? window.W : 800;  // Ширина canvas по умолчанию
-var H = (typeof window !== 'undefined' && window.H) ? window.H : 600;  // Высота canvas по умолчанию
 if (typeof window !== 'undefined') { window.W = W; window.H = H; }
 
-
-let gameRunning = false;
-let gamePaused = false;
 // If evaluated twice, keep the same keys object.
-let keys = (typeof window !== 'undefined' && window.keys) ? window.keys : {};
 if (typeof window !== 'undefined') window.keys = keys;
-
-let isRebinding = false; // Перенесено сюда, чтобы не дублировать
-let mouse = { x: W/2, y: H/2, down: false };
-let playerClass = 'melee';
-
-let camera = { x: 0, y: 0 };
 const WORLD_W = 4000;
 const WORLD_H = 4000;
 
