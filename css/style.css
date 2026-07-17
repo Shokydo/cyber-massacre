@@ -249,8 +249,9 @@ body {
 .ability-info { text-align: center; min-width: 300px; }
 .ability-title {
   font-family: 'Orbitron', sans-serif; font-size: 28px;
-  color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink);
+  color: var(--neon-pink);
   letter-spacing: 4px; margin: 0 0 6px 0;
+  transition: color 0.3s, text-shadow 0.3s;
 }
 .ability-level {
   font-size: 16px; color: var(--neon-cyan);
@@ -285,7 +286,7 @@ body {
   position: absolute;
   width: 80px; height: 80px;
   background: rgba(10, 15, 30, 0.9);
-  border: 2px solid var(--neon-pink);
+  border: 2px solid #333;
   clip-path: polygon(15% 0%, 100% 0%, 100% 85%, 85% 100%, 0 100%, 0% 15%);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.3s; user-select: none;
@@ -321,16 +322,15 @@ body {
 .skill-node.maxed .node-level { color: var(--neon-green); }
 .skill-node.locked .node-cost { color: #555; text-shadow: none; }
 
-/* Node positions — top row (0-3) left to right */
-.skill-node[data-node="0"] { left: 30px;  top: 10px; }
-.skill-node[data-node="1"] { left: 170px; top: 10px; }
-.skill-node[data-node="2"] { left: 310px; top: 10px; }
-.skill-node[data-node="3"] { left: 450px; top: 10px; }
-/* Bottom row (4-7) RIGHT to LEFT (snake) */
-.skill-node[data-node="4"] { left: 450px; top: 210px; }
-.skill-node[data-node="5"] { left: 310px; top: 210px; }
-.skill-node[data-node="6"] { left: 170px; top: 210px; }
-.skill-node[data-node="7"] { left: 30px;  top: 210px; }
+/* Node positions — top row (0-3) left to right, bottom row (4-7) right to left */
+.skill-node[data-node="0"] { left: 50px;  top: 10px; }
+.skill-node[data-node="1"] { left: 200px; top: 10px; }
+.skill-node[data-node="2"] { left: 350px; top: 10px; }
+.skill-node[data-node="3"] { left: 500px; top: 10px; }
+.skill-node[data-node="4"] { left: 500px; top: 210px; }
+.skill-node[data-node="5"] { left: 350px; top: 210px; }
+.skill-node[data-node="6"] { left: 200px; top: 210px; }
+.skill-node[data-node="7"] { left: 50px;  top: 210px; }
 
 /* Footer */
 .modal-footer {
@@ -384,17 +384,17 @@ body {
 @media (max-width: 768px) {
   .skill-modal { padding: 20px 16px 16px; }
   .ability-title { font-size: 20px; }
-  .skill-tree { width: 340px; height: 310px; }
-  .skill-node { width: 56px; height: 56px; }
+  .skill-tree { width: 360px; height: 310px; }
+  .skill-node { width: 60px; height: 60px; }
   .node-cost { font-size: 15px; }
   .node-level { font-size: 10px; }
   .skill-node[data-node="0"] { left: 10px;  top: 10px; }
-  .skill-node[data-node="1"] { left: 100px; top: 10px; }
-  .skill-node[data-node="2"] { left: 190px; top: 10px; }
-  .skill-node[data-node="3"] { left: 274px; top: 10px; }
-  .skill-node[data-node="4"] { left: 274px; top: 210px; }
-  .skill-node[data-node="5"] { left: 190px; top: 210px; }
-  .skill-node[data-node="6"] { left: 100px; top: 210px; }
+  .skill-node[data-node="1"] { left: 108px; top: 10px; }
+  .skill-node[data-node="2"] { left: 206px; top: 10px; }
+  .skill-node[data-node="3"] { left: 290px; top: 10px; }
+  .skill-node[data-node="4"] { left: 290px; top: 210px; }
+  .skill-node[data-node="5"] { left: 206px; top: 210px; }
+  .skill-node[data-node="6"] { left: 108px; top: 210px; }
   .skill-node[data-node="7"] { left: 10px;  top: 210px; }
   .modal-footer { flex-direction: column; gap: 10px; }
   .arrow-btn { width: 44px; height: 44px; font-size: 20px; }
