@@ -200,6 +200,7 @@ function lobbySelectClass() {
 }
 
 function startMetro(cls) {
+  const fade = document.getElementById('fade-overlay');
   const metro = document.getElementById('metro-sequence');
   metro.style.display = 'flex';
   fade.style.opacity = '0';
@@ -214,6 +215,7 @@ function startMetro(cls) {
 }
 
 function startTrain(cls) {
+  const fade = document.getElementById('fade-overlay');
   const train = document.getElementById('train-sequence');
   train.style.display = 'flex';
   fade.style.opacity = '0';
