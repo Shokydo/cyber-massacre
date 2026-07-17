@@ -1,0 +1,370 @@
+Понял! Делаю аутентичные способности нетраннера из Cyberpunk 2077. Вот что нужно добавить:
+
+**Замени функции `tryAbility1`, `tryAbility2`, `tryUlt` для класса magic на эти:**
+
+```javascript
+// Добавь в начало файла вместе с другими массивами:
+let breachMarks = []; // Метки взлома над врагами
+let cyberDemons = []; // Кибер-демоны
+let hackedEnemies = []; // Взломанные враги
+
+// Замени tryAbility1 для magic (НЕТРАННЕР):
+function tryAbility1() {
+  if (!gameRunning || gamePaused || player.abilityCd1 > 0) return;
+  playSound('ability1');
+  const stats = getPlayerStats();
+  const c = classes[playerClass];
+  player.angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+
+  if (playerClass === 'magic') {
+    // === БЫСТРЫЙ ВЗЛОМ ===
+    const a1DmgBonus = 1 + getSkillBonus('a1Dmg');
+    const a1RadiusBonus = 1 + getSkillBonus('a1Radius');
+    const a1CdBonus = 1 - getSkillBonus('a1Cd');
+    player.abilityCd1 = Math.floor(420 * Math.max(0.3, a1CdBonus));
+    
+    const hackRadius = 350 * a1RadiusBonus;
+    let markedCount = 0;
+    
+    // Помечаем всех врагов в радиусе
+    enemies.forEach(e => {
+      if (!e.dead && dist(player.x, player.y, e.x, e.y) < hackRadius) {
+        breachMarks.push({
+          enemy: e,
+          x: e.x,
+          y: e.y - 30,
+          life: 120, // 2 секунды
+          dmg: Math.floor(stats.dmg * 2.5 * a1DmgBonus),
+          hasBurned: false
+        });
+        markedCount++;
+        
+        // Визуальный эффект над врагом
+        for (let i = 0; i < 8; i++) {
+          const a = (Math.PI * 2 / 8) * i;
+          particles.push({
+            x: e.x + Math.cos(a) * 15,
+            y: e.y - 30 + Math.sin(a) * 15,
+            vx: Math.cos(a) * 2,
+            vy: Math.sin(a) * 2,
+            life: 40,
+            color: '#f00',
+            size: 3
+          });
+        }
+      }
+    });
+    
+    if (markedCount > 0) {
+      showMsg('ВЗЛОМ: ' + markedCount, '#f00');
+      shake = 5;
+    }
+  }
+  // ... остальные классы без изменений
+}
+
+// Замени tryAbility2 для magic (НЕТРАННЕР):
+function tryAbility2() {
+  if (!gameRunning || gamePaused || player.abilityCd2 > 0) return;
+  playSound('ability2');
+  const stats = getPlayerStats();
+  const c = classes[playerClass];
+
+  if (playerClass === 'magic') {
+    // === КИБЕР-ДЕМОНЫ ===
+    const a2DmgBonus = 1 + getSkillBonus('a2Dmg');
+    const a2CountBonus = Math.floor(getSkillBonus('a2Count'));
+    const a2DurBonus = 1 + getSkillBonus('a2Dur');
+    player.abilityCd2 = 480;
+    
+    const demonCount = 3 + a2CountBonus;
+    for (let i = 0; i < demonCount; i++) {
+      const angle = (Math.PI * 2 / demonCount) * i;
+      cyberDemons.push({
+        angle: angle,
+        radius: 60 + Math.random() * 20,
+        life: Math.floor(300 * a2DurBonus), // 5 секунд
+        shootCd: 0,
+        dmg: Math.floor(stats.dmg * 0.8 * a2DmgBonus),
+        targetEnemy: null
+      });
+    }
+    showMsg('ДЕМОНЫ: ' + demonCount, '#a0f');
+  }
+  // ... остальные классы без изменений
+}
+
+// Замени tryUlt для magic (НЕТРАННЕР):
+function tryUlt() {
+  if (!gameRunning || gamePaused || player.ultCd > 0) return;
+  playSound('ult');
+  const stats = getPlayerStats();
+
+  if (playerClass === 'magic') {
+    // === ВЗЛОМ РЕАЛЬНОСТИ ===
+    if (player.ultCharge < player.ultMaxCharge) return;
+    const ultDmgBonus = 1 + getSkillBonus('ultDmg');
+    const ultCountBonus = Math.floor(getSkillBonus('ultCount'));
+    player.ultCd = 600;
+    player.ultCharge = 0;
+    
+    let hackedCount = 0;
+    enemies.forEach(e => {
+      if (!e.dead) {
+        e.hacked = true;
+        e.hackedTimer = 300; // 5 секунд
+        e.hackedDmg = Math.floor(stats.dmg * 0.5 * ultDmgBonus);
+        hackedEnemies.push(e);
+        hackedCount++;
+        
+        // Визуальный эффект
+        for (let i = 0; i < 15; i++) {
+          particles.push({
+            x: e.x + (Math.random()-0.5)*40,
+            y: e.y + (Math.random()-0.5)*40,
+            vx: (Math.random()-0.5)*3,
+            vy: (Math.random()-0.5)*3,
+            life: 60,
+            color: '#f0f',
+            size: 4
+          });
+        }
+      }
+    });
+    
+    if (hackedCount > 0) {
+      showMsg('ВЗЛОМ ВСЕХ: ' + hackedCount, '#f0f');
+      shake = 10;
+    }
+  }
+  // ... остальные классы без изменений
+}
+```
+
+**Теперь добавь обработку в функцию `update()`:**
+
+```javascript
+// После обработки electricOrbs добавь:
+
+// === ОБРАБОТКА ВЗЛОМОВ (BREACH MARKS) ===
+breachMarks.forEach(mark => {
+  mark.life--;
+  mark.x = mark.enemy.x;
+  mark.y = mark.enemy.y - 30;
+  
+  if (mark.life <= 0 && !mark.hasBurned && !mark.enemy.dead) {
+    // Активация взлома - поджог!
+    damageEnemy(mark.enemy, mark.dmg);
+    mark.enemy.burning = true;
+    mark.enemy.burnTimer = 180; // 3 секунды горения
+    mark.enemy.burnDmg = Math.floor(mark.dmg * 0.3);
+    mark.hasBurned = true;
+    
+    // Эффект поджога
+    for (let i = 0; i < 20; i++) {
+      particles.push({
+        x: mark.enemy.x + (Math.random()-0.5)*30,
+        y: mark.enemy.y + (Math.random()-0.5)*30,
+        vx: (Math.random()-0.5)*4,
+        vy: (Math.random()-0.5)*4 - 2,
+        life: 40,
+        color: '#f80',
+        size: 4
+      });
+    }
+  }
+});
+breachMarks = breachMarks.filter(m => m.life > 0 && !m.enemy.dead);
+
+// === ОБРАБОТКА КИБЕР-ДЕМОНОВ ===
+cyberDemons.forEach(demon => {
+  demon.life--;
+  demon.angle += 0.08;
+  demon.shootCd--;
+  
+  // Поиск цели
+  if (demon.shootCd <= 0) {
+    let closest = null, closestDist = 400;
+    enemies.forEach(e => {
+      if (!e.dead && dist(player.x, player.y, e.x, e.y) < closestDist) {
+        closest = e;
+        closestDist = dist(player.x, player.y, e.x, e.y);
+      }
+    });
+    
+    if (closest) {
+      const a = Math.atan2(closest.y - player.y, closest.x - player.x);
+      const demonX = player.x + Math.cos(demon.angle) * demon.radius;
+      const demonY = player.y + Math.sin(demon.angle) * demon.radius;
+      
+      projectiles.push({
+        x: demonX,
+        y: demonY,
+        vx: Math.cos(a) * 10,
+        vy: Math.sin(a) * 10,
+        dmg: demon.dmg,
+        color: '#a0f',
+        type: 'bullet',
+        life: 60,
+        size: 5,
+        owner: 'player'
+      });
+      demon.shootCd = 40;
+    }
+  }
+});
+cyberDemons = cyberDemons.filter(d => d.life > 0);
+
+// === ОБРАБОТКА ВЗЛОМАННЫХ ВРАГОВ ===
+hackedEnemies.forEach(e => {
+  if (e.hacked && e.hackedTimer > 0 && !e.dead) {
+    e.hackedTimer--;
+    
+    // Взломанный враг наносит урон ближайшему союзнику
+    if (Math.random() < 0.02) { // 2% шанс в кадр
+      let target = null;
+      let minDist = 200;
+      enemies.forEach(other => {
+        if (other !== e && !other.dead && dist(e.x, e.y, other.x, other.y) < minDist) {
+          target = other;
+          minDist = dist(e.x, e.y, other.x, other.y);
+        }
+      });
+      
+      if (target) {
+        damageEnemy(target, e.hackedDmg);
+        // Эффект молнии между врагами
+        lightningChains.push({
+          x1: e.x, y1: e.y,
+          x2: target.x, y2: target.y,
+          life: 20,
+          color: '#f0f'
+        });
+      }
+    }
+    
+    // Замедление
+    e.slowTimer = Math.max(e.slowTimer || 0, 10);
+  }
+});
+hackedEnemies = hackedEnemies.filter(e => e.hackedTimer > 0 && !e.dead);
+hackedEnemies.forEach(e => {
+  if (!e.hacked) {
+    const idx = hackedEnemies.indexOf(e);
+    if (idx > -1) hackedEnemies.splice(idx, 1);
+  }
+});
+
+// === ОБРАБОТКА ГОРЯЩИХ ВРАГОВ ===
+enemies.forEach(e => {
+  if (e.burning && e.burnTimer > 0 && !e.dead) {
+    e.burnTimer--;
+    if (e.burnTimer % 30 === 0) { // Каждые 0.5 сек
+      damageEnemy(e, e.burnDmg);
+      // Частицы огня
+      for (let i = 0; i < 5; i++) {
+        particles.push({
+          x: e.x + (Math.random()-0.5)*20,
+          y: e.y + (Math.random()-0.5)*20,
+          vx: (Math.random()-0.5)*2,
+          vy: -Math.random()*3 - 1,
+          life: 30,
+          color: '#f80',
+          size: 3
+        });
+      }
+    }
+  }
+});
+```
+
+**Теперь добавь отрисовку в функцию `draw()`:**
+
+```javascript
+// Перед отрисовкой damageTexts добавь:
+
+// === ОТРИСОВКА МЕТОК ВЗЛОМА ===
+breachMarks.forEach(mark => {
+  const sx = mark.x - camera.x;
+  const sy = mark.y - camera.y;
+  const alpha = Math.min(1, mark.life / 30);
+  
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = '#f00';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#f00';
+  ctx.shadowBlur = 10;
+  
+  // Рисуем иконку взлома (квадрат с черепом)
+  ctx.strokeRect(sx - 20, sy - 20, 40, 40);
+  
+  // Прогресс-бар
+  const progress = 1 - mark.life / 120;
+  ctx.fillStyle = '#f00';
+  ctx.fillRect(sx - 18, sy + 12, 36 * progress, 4);
+  
+  // Текст "ВЗЛОМ"
+  ctx.fillStyle = '#f00';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('ВЗЛОМ', sx, sy - 25);
+  
+  ctx.restore();
+});
+
+// === ОТРИСОВКА КИБЕР-ДЕМОНОВ ===
+cyberDemons.forEach(demon => {
+  const dx = player.x + Math.cos(demon.angle) * demon.radius - camera.x;
+  const dy = player.y + Math.sin(demon.angle) * demon.radius - camera.y;
+  
+  ctx.save();
+  ctx.fillStyle = '#a0f';
+  ctx.shadowColor = '#a0f';
+  ctx.shadowBlur = 15;
+  
+  // Рисуем демона (треугольник)
+  ctx.beginPath();
+  for (let i = 0; i < 3; i++) {
+    const a = demon.angle + (Math.PI * 2 / 3) * i + Math.PI/2;
+    const r = i === 0 ? 12 : 8;
+    ctx.lineTo(dx + Math.cos(a) * r, dy + Math.sin(a) * r);
+  }
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.restore();
+});
+
+// === ОТРИСОВКА ВЗЛОМАННЫХ ВРАГОВ ===
+// (уже рисуется в основном цикле врагов, но можно добавить эффект)
+```
+
+**Замени описания способностей в `skillTrees` для magic:**
+
+```javascript
+magic: [
+  { title:'БЫСТРЫЙ ВЗЛОМ (1)', skills:[
+    { id:'ma_a1_dmg', name:'ГЛУБИНА ВЗЛОМА', desc:'Урон взлома +25%', cost:1, max:3, bonus:{ a1Dmg:0.25 } },
+    { id:'ma_a1_radius', name:'РАДИУС СЕТИ', desc:'Радиус взлома +25%', cost:1, max:3, bonus:{ a1Radius:0.25 } },
+    { id:'ma_a1_speed', name:'БЫСТРЫЙ КОД', desc:'Скорость взлома +30%', cost:2, max:2, bonus:{ a1Cd:0.3 } },
+  ]},
+  { title:'КИБЕР-ДЕМОНЫ (2)', skills:[
+    { id:'ma_a2_dmg', name:'СИЛА ДЕМОНА', desc:'Урон демонов +20%', cost:1, max:3, bonus:{ a2Dmg:0.2 } },
+    { id:'ma_a2_count', name:'РОЙ ДЕМОНОВ', desc:'+2 дополнительных демона', cost:1, max:3, bonus:{ a2Count:2 } },
+    { id:'ma_a2_dur', name:'СТАБИЛЬНОСТЬ', desc:'Длительность +30%', cost:2, max:2, bonus:{ a2Dur:0.3 } },
+  ]},
+  { title:'ВЗЛОМ РЕАЛЬНОСТИ (УЛЬТА)', skills:[
+    { id:'ma_u_dmg', name:'ГЛЮК СИСТЕМ', desc:'Урон взлома +20%', cost:1, max:3, bonus:{ ultDmg:0.2 } },
+    { id:'ma_u_count', name:'МАССОВЫЙ ВЗЛОМ', desc:'Взламывает всех врагов', cost:2, max:1, flag:true },
+    { id:'ma_u_dur', name:'ДОЛГИЙ ГЛЮК', desc:'Длительность взлома +40%', cost:2, max:2, bonus:{ ultDur:0.4 } },
+  ]}
+]
+```
+
+Теперь нетраннер работает так:
+- **1 - БЫСТРЫЙ ВЗЛОМ**: Помечает врагов красными иконками, через 2 сек они загораются 🔥
+- **2 - КИБЕР-ДЕМОНЫ**: Призывает летающих демонов которые сами стреляют
+- **3 - ВЗЛОМ РЕАЛЬНОСТИ**: Все враги на экране взламываются и атакуют друг друга!
+
+Это максимально похоже на нетраннера из Cyberpunk 2077! 🎮
