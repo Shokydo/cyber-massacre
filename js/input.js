@@ -1,76 +1,76 @@
-﻿1: let keys = {};
-2: let isRebinding = false;
-3: 
-4: document.addEventListener('keydown', e => {
-5:   if (isRebinding) return;
-6:   const k = e.key.toLowerCase();
-7:   keys[k] = true;
-8: 
-9:   if (lobbyActive) {
-10:     if (k === 'escape') {
-11:       e.preventDefault();
-12:       if (settingsOpen) { toggleSettings(); }
-13:       else { toggleSettings(); }
-14:       return;
-15:     }
-16:     if (k === 'e' || k === 'у') { e.preventDefault(); lobbySelectClass(); }
-17:     return;
-18:   }
-19: 
-20:   if (k === 'escape') {
-21:     e.preventDefault();
-22:     if (settingsOpen) { toggleSettings(); }
-23:     else if (skillMenuOpen) { toggleSkillMenu(); }
-24:     else if (pendingPickup) { skipPickup(); }
-25:     else if (gameRunning) { togglePause(); }
-26:     return;
-27:   }
-28: 
-29:   const kb = (typeof gameSettings !== 'undefined' && gameSettings.keybinds) ? gameSettings.keybinds : {};
-30: 
-31:   if (k === (kb.dash || 'shift')) tryDash();
-32:   if (k === (kb.ability1 || '1')) tryAbility1();
-33:   if (k === (kb.ability2 || '2')) tryAbility2();
-34:   if (k === (kb.ability3 || '3')) tryUlt();
-35:   if (k === (kb.upgrade || 'p')) { e.preventDefault(); toggleSkillMenu(); }
-36:   if (k === 'f' || k === 'а') { if (pendingPickup) takePickup(); }
-37:   if (e.code === 'Space') { e.preventDefault(); if (!player.charging) tryAttack(); }
-38: });
-39: document.addEventListener('keyup', e => {
-40:   const k = e.key.toLowerCase();
-41:   keys[k] = false;
-42: });
-43: cv.addEventListener('mousemove', e => {
-44:   const r = cv.getBoundingClientRect();
-45:   mouse.x = (e.clientX - r.left) * (W / r.width) + camera.x;
-46:   mouse.y = (e.clientY - r.top) * (H / r.height) + camera.y;
-47: });
-48: cv.addEventListener('mousedown', e => {
-49:   if (e.button === 0) {
-50:     mouse.down = true;
-51:   }
-52:   if (e.button === 2) {
-53:     e.preventDefault();
-54:     if (playerClass === 'melee') {
-55:       throwKnife();
-56:     } else if (playerClass === 'tech') {
-57:       techieShield.active = true;
-58:       techieShield.broken = false;
-59:     }
-60:   }
-61: });
-62: cv.addEventListener('mouseup', e => {
-63:   if (e.button === 0) {
-64:     mouse.down = false;
-65:   }
-66:   if (e.button === 2) {
-67:     if (playerClass === 'tech') {
-68:       techieShield.active = false;
-69:       if (techieShield.hp <= 0) {
-70:         techieShield.broken = true;
-71:         techieShield.cooldown = 180;
-72:       }
-73:     }
-74:   }
-75: });
-76: cv.addEventListener('contextmenu', e => e.preventDefault());
+﻿let keys = {};
+let isRebinding = false;
+
+document.addEventListener('keydown', e => {
+  if (isRebinding) return;
+  const k = e.key.toLowerCase();
+  keys[k] = true;
+
+  if (lobbyActive) {
+    if (k === 'escape') {
+      e.preventDefault();
+      if (settingsOpen) { toggleSettings(); }
+      else { toggleSettings(); }
+      return;
+    }
+    if (k === 'e' || k === 'у') { e.preventDefault(); lobbySelectClass(); }
+    return;
+  }
+
+  if (k === 'escape') {
+    e.preventDefault();
+    if (settingsOpen) { toggleSettings(); }
+    else if (skillMenuOpen) { toggleSkillMenu(); }
+    else if (pendingPickup) { skipPickup(); }
+    else if (gameRunning) { togglePause(); }
+    return;
+  }
+
+  const kb = (typeof gameSettings !== 'undefined' && gameSettings.keybinds) ? gameSettings.keybinds : {};
+
+  if (k === (kb.dash || 'shift')) tryDash();
+  if (k === (kb.ability1 || '1')) tryAbility1();
+  if (k === (kb.ability2 || '2')) tryAbility2();
+  if (k === (kb.ability3 || '3')) tryUlt();
+  if (k === (kb.upgrade || 'p')) { e.preventDefault(); toggleSkillMenu(); }
+  if (k === 'f' || k === 'а') { if (pendingPickup) takePickup(); }
+  if (e.code === 'Space') { e.preventDefault(); if (!player.charging) tryAttack(); }
+});
+document.addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  keys[k] = false;
+});
+cv.addEventListener('mousemove', e => {
+  const r = cv.getBoundingClientRect();
+  mouse.x = (e.clientX - r.left) * (W / r.width) + camera.x;
+  mouse.y = (e.clientY - r.top) * (H / r.height) + camera.y;
+});
+cv.addEventListener('mousedown', e => {
+  if (e.button === 0) {
+    mouse.down = true;
+  }
+  if (e.button === 2) {
+    e.preventDefault();
+    if (playerClass === 'melee') {
+      throwKnife();
+    } else if (playerClass === 'tech') {
+      techieShield.active = true;
+      techieShield.broken = false;
+    }
+  }
+});
+cv.addEventListener('mouseup', e => {
+  if (e.button === 0) {
+    mouse.down = false;
+  }
+  if (e.button === 2) {
+    if (playerClass === 'tech') {
+      techieShield.active = false;
+      if (techieShield.hp <= 0) {
+        techieShield.broken = true;
+        techieShield.cooldown = 180;
+      }
+    }
+  }
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());

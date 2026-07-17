@@ -90,19 +90,6 @@ const enemyTypes = [
   { name:'SPEEDSTER', color:'#ff0', hp:15, speed:2.8, size:8, dmg:12, xp:8, attack:'melee', dmgVar:4 }
 ];
 
-const TOWER_TYPE = { name:'TOWER', color:'#f80', hp:120, speed:0, size:22, dmg:0, xp:20, attack:'ranged', dmgVar:0, tower:true };
-
-const IMPLANT_TYPES = [
-  { id:'dmg', name:'DAMAGE IMPLANT', color:'#f00', stat:'dmgPct', base:5, maxStacks:10, desc:'+5% DAMAGE per stack' },
-  { id:'hp', name:'HP IMPLANT', color:'#0f0', stat:'maxHpPct', base:5, maxStacks:10, desc:'+5% MAX HP per stack' },
-  { id:'def', name:'DEFENSE IMPLANT', color:'#0ff', stat:'defensePct', base:1, maxStacks:50, desc:'+1% DEFENSE per stack (50% max)' },
-  { id:'atkSpd', name:'SPEED IMPLANT', color:'#ff0', stat:'atkSpeedPct', base:4, maxStacks:10, desc:'+4% ATK SPEED per stack' },
-  { id:'range', name:'RANGE IMPLANT', color:'#a0f', stat:'rangePct', base:5, maxStacks:8, desc:'+5% RANGE per stack' },
-  { id:'hpRegen', name:'REGEN IMPLANT', color:'#f90', stat:'hpRegenPct', base:2, maxStacks:5, desc:'+2% HP REGEN per stack' },
-  { id:'qCd', name:'QDIMPLANT', color:'#ff88ff', stat:'qCdPct', base:8, maxStacks:10, desc:'-8% ABILITY 1 COOLDOWN per stack' },
-  { id:'luck', name:'LUCK IMPLANT', color:'#ffc', stat:'luckPct', base:3, maxStacks:12, desc:'+3% DROP CHANCE per stack' }
-];
-
 const TOWER_TYPE = { name:'БАШНЯ', color:'#f80', hp:120, speed:0, size:22, dmg:0, xp:20, attack:'ranged', dmgVar:0, tower:true };
 
 const IMPLANT_TYPES = [
