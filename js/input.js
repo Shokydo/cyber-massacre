@@ -4,6 +4,12 @@
   keys[k] = true;
 
   if (lobbyActive) {
+    if (k === 'escape') {
+      e.preventDefault();
+      if (settingsOpen) { toggleSettings(); }
+      else { toggleSettings(); }
+      return;
+    }
     if (k === 'e' || k === 'у') { e.preventDefault(); lobbySelectClass(); }
     return;
   }
