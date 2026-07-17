@@ -169,16 +169,18 @@ body {
 #pickupMenu .keyHint { color: var(--neon-yellow); margin-top: 20px; font-size: 14px; font-family: 'Share Tech Mono', monospace; }
 
 /* --- ИМПЛАНТЫ --- */
-#implants { position: fixed; top: 10px; right: 10px; min-width: 180px; z-index: 10; border-color: var(--neon-yellow); }
+#implants { position: fixed; top: 10px; right: 10px; min-width: 240px; z-index: 10; border-color: var(--neon-yellow); }
 #implants h3 { color: var(--neon-yellow); text-shadow: 0 0 10px var(--neon-yellow); margin-bottom: 8px; font-size: 16px; text-align: center; font-family: 'Orbitron', sans-serif; }
-.implant-slot { margin: 4px 0; padding: 6px 8px; background: rgba(0,0,0,0.5); border-left: 3px solid var(--neon-cyan); display: flex; justify-content: space-between; align-items: center; font-family: 'Share Tech Mono', monospace; }
-.implant-name { color: var(--neon-cyan); font-size: 11px; }
+.implant-slot { margin: 4px 0; padding: 8px 10px; background: rgba(0,0,0,0.5); border-left: 3px solid var(--neon-cyan); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: 'Share Tech Mono', monospace; }
+.implant-name { color: var(--neon-cyan); font-size: 12px; font-weight: bold; }
+.implant-desc { color: #777; font-size: 9px; margin-top: 2px; }
+.implant-mult { font-size: 14px; font-weight: bold; font-family: 'Orbitron', sans-serif; white-space: nowrap; text-shadow: 0 0 8px currentColor; }
 .implant-count { color: var(--neon-yellow); font-size: 11px; font-weight: bold; }
 .implant-stack { color: #888; font-size: 10px; }
 
 /* --- МИНИКАРТА --- */
 #minimap {
-  position: fixed; top: 10px; right: 210px;
+  position: fixed; bottom: 10px; left: 10px;
   width: 180px; height: 180px;
   background: rgba(0,0,0,0.8);
   border: 2px solid var(--neon-pink);

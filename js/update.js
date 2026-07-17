@@ -1273,9 +1273,16 @@ function updateImplantUI() {
   for (const [id, count] of Object.entries(player.implants)) {
     const impl = IMPLANT_TYPES.find(i => i.id === id);
     if (!impl) continue;
+    const pct = count * impl.base;
+    const mult = (1 + pct / 100).toFixed(2);
     const div = document.createElement('div');
     div.className = 'implant-slot';
-    div.innerHTML = `<span class="implant-name" style="color:${impl.color}">${impl.name}</span><span class="implant-count">x${count}</span>`;
+    div.innerHTML = `
+      <div>
+        <div class="implant-name" style="color:${impl.color}">${impl.name} x${count}</div>
+        <div class="implant-desc">${impl.desc}</div>
+      </div>
+      <div class="implant-mult" style="color:${impl.color}">x${mult}</div>`;
     container.appendChild(div);
   }
   if (Object.keys(player.implants).length === 0) container.innerHTML = '<div style="color:#555; text-align:center; font-size:11px;">ПУСТО</div>';
