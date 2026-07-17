@@ -16,12 +16,6 @@
   }
   ctx.stroke();
 
-  if (Math.random() < 0.015) {
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.04)';
-    const glitchY = Math.random() * H;
-    ctx.fillRect(0, glitchY, W, Math.random() * 30 + 10);
-  }
-
   if (floorImgLoaded) {
     const tileSize = 256;
     const startX = Math.floor(camera.x / tileSize) * tileSize;

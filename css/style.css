@@ -102,7 +102,6 @@ body {
   font-family: 'Orbitron', sans-serif; font-size: 72px; color: var(--neon-pink);
   text-shadow: 0 0 20px var(--neon-pink), 0 0 40px var(--neon-cyan);
   letter-spacing: 8px; margin-bottom: 20px;
-  animation: glitch-skew 3s infinite linear alternate-reverse;
 }
 #start p { color: var(--neon-cyan); margin: 10px; font-size: 18px; font-family: 'Share Tech Mono', monospace; }
 
