@@ -48,6 +48,7 @@ function initWorld() {
   player.implants = {};
   player.stats = { dmgPct:0, maxHpPct:0, defensePct:0, atkSpeedPct:0, rangePct:0, hpRegenPct:0, abilityCdPct:0, qCdPct:0, luckPct:0 };
   player.skillPoints = 0; player.skills = {};
+  resetAbilityLevels(); currentAbility = 0;
   player.hp = player.maxHp = 100; player.level = 1; player.xp = 0; player.xpNext = 50;
   player.floor = 1; player.kills = 0;
   player.abilityCd1 = 0; player.abilityCd2 = 0; player.ultCd = 0;

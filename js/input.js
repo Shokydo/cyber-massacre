@@ -9,7 +9,7 @@
   if (k === '1') tryAbility1();
   if (k === '2') tryAbility2();
   if (k === '3') tryUlt();
-  if (k === 'e' || k === 'у') { e.preventDefault(); toggleSkillMenu(); }
+  if (k === 'p' || k === 'з') { e.preventDefault(); toggleSkillMenu(); }
   if (k === 'f' || k === 'а') { if (pendingPickup) takePickup(); }
   if (k === 'escape') {
     e.preventDefault();

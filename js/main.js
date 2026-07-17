@@ -84,6 +84,7 @@ window.tryAbility1 = tryAbility1;
 window.tryAbility2 = tryAbility2;
 window.tryUlt = tryUlt;
 window.toggleSkillMenu = toggleSkillMenu;
+window.changeAbility = changeAbility;
 window.resumeGame = resumeGame;
 window.openSkillsFromPause = openSkillsFromPause;
 window.takePickup = takePickup;

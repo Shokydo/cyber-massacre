@@ -1,4 +1,140 @@
-﻿function toggleSkillMenu() {
+﻿const abilitiesData = {
+  melee: [
+    { name:'ВРАЩ. КЛИНОК', nodes:[
+      { cost:2, effect:{a1Dmg:0.15}, desc:'+15% УРОН ВРАЩЕНИЯ' },
+      { cost:3, effect:{a1Radius:0.20}, desc:'+20% РАДИУС' },
+      { cost:4, effect:{a1Dmg:0.20}, desc:'+20% УРОН ВРАЩЕНИЯ' },
+      { cost:5, effect:{a1Duration:30}, desc:'+0.5 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:3, effect:{a1Cd:0.10}, desc:'-10% КД' },
+      { cost:4, effect:{a1Radius:0.25}, desc:'+25% РАДИУС' },
+      { cost:5, effect:{a1Dmg:0.25}, desc:'+25% УРОН ВРАЩЕНИЯ' },
+      { cost:6, effect:{a1Dmg:0.30, a1Radius:0.30}, desc:'+30% УРОН И РАДИУС' }
+    ]},
+    { name:'ЭМИ-ГРАНАТА', nodes:[
+      { cost:2, effect:{a2Dmg:0.15}, desc:'+15% УРОН ВЗРЫВА' },
+      { cost:3, effect:{a2Radius:0.20}, desc:'+20% РАДИУС ВЗРЫВА' },
+      { cost:4, effect:{a2Dmg:0.20}, desc:'+20% УРОН ВЗРЫВА' },
+      { cost:5, effect:{a2Stun:60}, desc:'+1 СЕК ОГЛУШЕНИЕ' },
+      { cost:3, effect:{a2Cd:0.10}, desc:'-10% КД' },
+      { cost:4, effect:{a2Radius:0.25}, desc:'+25% РАДИУС ВЗРЫВА' },
+      { cost:5, effect:{a2Dmg:0.25}, desc:'+25% УРОН ВЗРЫВА' },
+      { cost:6, effect:{a2Dmg:0.30, a2Cluster:true}, desc:'+30% УРОН, КАССЕТНАЯ ГРАНАТА' }
+    ]},
+    { name:'САНДЕВИСТАН', nodes:[
+      { cost:2, effect:{ultDuration:60}, desc:'+1 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:3, effect:{ultSlow:0.05}, desc:'+5% ЗАМЕДЛЕНИЕ ВРАГОВ' },
+      { cost:4, effect:{ultDmg:0.10}, desc:'+10% УРОН ВО ВРЕМЯ УЛЬТЫ' },
+      { cost:5, effect:{ultSpeed:0.10}, desc:'+10% СКОРОСТЬ ИГРОКА' },
+      { cost:3, effect:{ultDuration:60}, desc:'+1 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:4, effect:{ultCd:0.10}, desc:'-10% КД УЛЬТЫ' },
+      { cost:5, effect:{ultDmg:0.15}, desc:'+15% УРОН ВО ВРЕМЯ УЛЬТЫ' },
+      { cost:6, effect:{ultDuration:90, ultSlow:0.10}, desc:'+1.5 СЕК, +10% ЗАМЕДЛЕНИЕ' }
+    ]}
+  ],
+  magic: [
+    { name:'КИБЕР-ВЗЛОМ', nodes:[
+      { cost:2, effect:{a1Dmg:0.15}, desc:'+15% УРОН ВЗЛОМА' },
+      { cost:3, effect:{a1Radius:0.20}, desc:'+20% РАДИУС ВЗЛОМА' },
+      { cost:4, effect:{a1Dmg:0.20}, desc:'+20% УРОН ВЗЛОМА' },
+      { cost:5, effect:{a1Stun:1}, desc:'+1 СЕК ОГЛУШЕНИЕ' },
+      { cost:3, effect:{a1Cd:0.10}, desc:'-10% КД' },
+      { cost:4, effect:{a1Radius:0.25}, desc:'+25% РАДИУС ВЗЛОМА' },
+      { cost:5, effect:{a1Dmg:0.25}, desc:'+25% УРОН ВЗЛОМА' },
+      { cost:6, effect:{a1Dmg:0.30, a1Vuln:0.15}, desc:'+30% УРОН, +15% УЯЗВИМОСТЬ' }
+    ]},
+    { name:'КИБЕР-ДЕМОН', nodes:[
+      { cost:2, effect:{a2Dmg:0.15}, desc:'+15% УРОН ДЕМОНА' },
+      { cost:3, effect:{a2Duration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:4, effect:{a2Dmg:0.20}, desc:'+20% УРОН ДЕМОНА' },
+      { cost:5, effect:{a2Speed:0.15}, desc:'+15% СКОРОСТЬ АТАКИ' },
+      { cost:3, effect:{a2Cd:0.10}, desc:'-10% КД' },
+      { cost:4, effect:{a2Duration:90}, desc:'+3 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:5, effect:{a2Dmg:0.25}, desc:'+25% УРОН ДЕМОНА' },
+      { cost:6, effect:{a2Dmg:0.30, a2Count:1}, desc:'+30% УРОН, +1 ДЕМОН' }
+    ]},
+    { name:'ЧЁРНАЯ СТЕНА', nodes:[
+      { cost:2, effect:{ultDmg:0.15}, desc:'+15% УРОН СТЕНЫ' },
+      { cost:3, effect:{ultBounce:2}, desc:'+2 ОТСКОКА' },
+      { cost:4, effect:{ultDmg:0.20}, desc:'+20% УРОН СТЕНЫ' },
+      { cost:5, effect:{ultStun:60}, desc:'+1 СЕК ОГЛУШЕНИЕ' },
+      { cost:3, effect:{ultDuration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:4, effect:{ultBounce:3}, desc:'+3 ОТСКОКА' },
+      { cost:5, effect:{ultDmg:0.25}, desc:'+25% УРОН СТЕНЫ' },
+      { cost:6, effect:{ultDmg:0.30, ultBounce:4}, desc:'+30% УРОН, +4 ОТСКОКА' }
+    ]}
+  ],
+  tech: [
+    { name:'ТУРЕЛЬ', nodes:[
+      { cost:2, effect:{a1Dmg:0.15}, desc:'+15% УРОН ТУРЕЛИ' },
+      { cost:3, effect:{a1Hp:0.20}, desc:'+20% HP ТУРЕЛИ' },
+      { cost:4, effect:{a1Dmg:0.20}, desc:'+20% УРОН ТУРЕЛИ' },
+      { cost:5, effect:{a1Duration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:3, effect:{a1Speed:0.10}, desc:'+10% СКОРОСТРЕЛЬНОСТЬ' },
+      { cost:4, effect:{a1Hp:0.30}, desc:'+30% HP ТУРЕЛИ' },
+      { cost:5, effect:{a1Dmg:0.25}, desc:'+25% УРОН ТУРЕЛИ' },
+      { cost:6, effect:{a1Dmg:0.30, a1Speed:0.20}, desc:'+30% УРОН, +20% СКОРОСТРЕЛ' }
+    ]},
+    { name:'БОЕВОЙ ДРОН', nodes:[
+      { cost:2, effect:{a2Dmg:0.15}, desc:'+15% УРОН ДРОНА' },
+      { cost:3, effect:{a2Duration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:4, effect:{a2Dmg:0.20}, desc:'+20% УРОН ДРОНА' },
+      { cost:5, effect:{a2Speed:0.15}, desc:'+15% СКОРОСТЬ АТАКИ' },
+      { cost:3, effect:{a2Cd:0.10}, desc:'-10% КД' },
+      { cost:4, effect:{a2Duration:90}, desc:'+3 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:5, effect:{a2Dmg:0.25}, desc:'+25% УРОН ДРОНА' },
+      { cost:6, effect:{a2Dmg:0.30, a2Count:1}, desc:'+30% УРОН, +1 ДРОН' }
+    ]},
+    { name:'МЕХ-КОСТЮМ', nodes:[
+      { cost:2, effect:{ultDuration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:3, effect:{ultDmg:0.10}, desc:'+10% УРОН КОСТЮМА' },
+      { cost:4, effect:{ultDuration:60}, desc:'+2 СЕК ДЛИТЕЛЬНОСТЬ' },
+      { cost:5, effect:{ultSpeed:0.10}, desc:'+10% СКОРОСТЬ КОСТЮМА' },
+      { cost:3, effect:{ultDmg:0.15}, desc:'+15% УРОН КОСТЮМА' },
+      { cost:4, effect:{ultCd:0.10}, desc:'-10% КД' },
+      { cost:5, effect:{ultSpeed:0.15}, desc:'+15% СКОРОСТЬ КОСТЮМА' },
+      { cost:6, effect:{ultDmg:0.20, ultDuration:90}, desc:'+20% УРОН, +3 СЕК' }
+    ]}
+  ]
+};
+
+const abilityLevels = {};
+let currentAbility = 0;
+
+function resetAbilityLevels() {
+  for (const cls of ['melee','magic','tech']) {
+    abilityLevels[cls] = [];
+    for (let a = 0; a < 3; a++) {
+      abilityLevels[cls][a] = [0,0,0,0,0,0,0,0];
+    }
+  }
+}
+resetAbilityLevels();
+
+function getTotalAbilityLevel(cls, abilityIdx) {
+  return abilityLevels[cls][abilityIdx].reduce((s,v)=>s+v, 0);
+}
+
+function getAbilityBonuses(cls) {
+  const bonuses = {};
+  const data = abilitiesData[cls];
+  for (let a = 0; a < 3; a++) {
+    const levels = abilityLevels[cls][a];
+    for (let n = 0; n < 8; n++) {
+      if (levels[n] <= 0) continue;
+      const node = data[a].nodes[n];
+      for (const [k,v] of Object.entries(node.effect)) {
+        if (typeof v === 'boolean') {
+          bonuses[k] = v;
+        } else {
+          bonuses[k] = (bonuses[k] || 0) + v * levels[n];
+        }
+      }
+    }
+  }
+  return bonuses;
+}
+
+function toggleSkillMenu() {
   if (!gameRunning) return;
   skillMenuOpen = !skillMenuOpen;
   const menu = document.getElementById('skillMenu');
@@ -6,7 +142,7 @@
     playSound('ui_menu_open');
     gamePaused = true;
     menu.classList.add('show');
-    initUpgradeMenu();
+    updateSkillMenuUI();
   } else {
     playSound('ui_menu_close');
     gamePaused = false;
@@ -14,21 +150,119 @@
   }
 }
 
-function getSkillLevel(id) { return player.skills[id] || 0; }
+function changeAbility(dir) {
+  currentAbility = (currentAbility + 3 + dir) % 3;
+  playSound('ui_click');
+  updateSkillMenuUI();
+}
 
-let currentSkillTab = 'abilities';
+function canUpgradeNode(nodeIdx) {
+  const levels = abilityLevels[playerClass][currentAbility];
+  if (nodeIdx === 0) return levels[0] < 2;
+  if (levels[nodeIdx] >= 2) return false;
+  if (levels[nodeIdx - 1] <= 0) return false;
+  const cost = abilitiesData[playerClass][currentAbility].nodes[nodeIdx].cost;
+  return player.skillPoints >= cost;
+}
+
+function upgradeNode(nodeIdx) {
+  const levels = abilityLevels[playerClass][currentAbility];
+  if (!canUpgradeNode(nodeIdx)) {
+    playSound('ui_error');
+    return;
+  }
+  const node = abilitiesData[playerClass][currentAbility].nodes[nodeIdx];
+  player.skillPoints -= node.cost;
+  levels[nodeIdx]++;
+  playSound('ui_skill_buy');
+  updateSkillMenuUI();
+}
+
+function updateSkillMenuUI() {
+  const data = abilitiesData[playerClass][currentAbility];
+  const levels = abilityLevels[playerClass][currentAbility];
+
+  document.getElementById('abilityName').textContent = data.name;
+  document.getElementById('totalAbilityLevel').textContent = getTotalAbilityLevel(playerClass, currentAbility);
+
+  document.getElementById('currentXP').textContent = player.xp;
+  document.getElementById('nextLevelXP').textContent = player.xpNext;
+  document.getElementById('modalSkillPoints').textContent = player.skillPoints;
+
+  const nodes = document.querySelectorAll('.skill-node');
+  nodes.forEach((el, i) => {
+    const lvl = levels[i];
+    const maxed = lvl >= 2;
+    const prevOk = i === 0 || levels[i - 1] > 0;
+    const unlocked = lvl > 0;
+
+    el.classList.remove('unlocked', 'maxed', 'locked');
+    if (maxed) el.classList.add('maxed');
+    else if (unlocked) el.classList.add('unlocked');
+    else if (!prevOk) el.classList.add('locked');
+
+    el.querySelector('.node-cost').textContent = maxed ? 'МАКС' : data.nodes[i].cost;
+    el.querySelector('.node-level').textContent = `${lvl}/2`;
+
+    if (maxed) el.onclick = null;
+    else if (prevOk) el.onclick = () => upgradeNode(i);
+    else el.onclick = null;
+
+    el.onmouseenter = (e) => showTooltip(e, data.nodes[i].desc, maxed, prevOk, data.nodes[i].cost, lvl);
+    el.onmouseleave = hideTooltip;
+    el.onmousemove = moveTooltip;
+  });
+}
+
+let tooltipEl = null;
+
+function showTooltip(e, desc, maxed, prevOk, cost, lvl) {
+  if (!tooltipEl) {
+    tooltipEl = document.createElement('div');
+    tooltipEl.className = 'skill-tooltip';
+    document.body.appendChild(tooltipEl);
+  }
+  let status = '';
+  if (maxed) status = '<div class="tooltip-stats" style="color:var(--neon-green)">МАКСИМАЛЬНЫЙ УРОВЕНЬ</div>';
+  else if (!prevOk) status = '<div class="tooltip-stats" style="color:var(--neon-red)">🔒 ТРЕБУЕТСЯ ПРЕДЫДУЩИЙ УРОВЕНЬ</div>';
+  else status = `<div class="tooltip-stats">СТОИМОСТЬ: <span style="color:var(--neon-yellow)">${cost} ОЧ.</span></div>`;
+
+  tooltipEl.innerHTML = `<div class="tooltip-name">${desc}</div>${status}`;
+  tooltipEl.style.display = 'block';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  if (!tooltipEl) return;
+  const pad = 15;
+  let x = e.clientX + pad;
+  let y = e.clientY + pad;
+  if (x + 300 > window.innerWidth) x = e.clientX - 300 - pad;
+  if (y + 120 > window.innerHeight) y = e.clientY - 120 - pad;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top = y + 'px';
+}
+
+function hideTooltip() {
+  if (tooltipEl) tooltipEl.style.display = 'none';
+}
+
+function getSkillLevel(id) { return player.skills[id] || 0; }
 
 function getSkillBonus(key) {
   let total = 0;
   const tree = skillTrees[playerClass];
-  if (!tree) return 0;
-  tree.forEach(branch => {
-    branch.skills.forEach(skill => {
-      if (skill.bonus && skill.bonus[key]) {
-        total += skill.bonus[key] * getSkillLevel(skill.id);
-      }
+  if (tree) {
+    tree.forEach(branch => {
+      branch.skills.forEach(skill => {
+        if (skill.bonus && skill.bonus[key]) {
+          total += skill.bonus[key] * getSkillLevel(skill.id);
+        }
+      });
     });
-  });
+  }
+  const ab = getAbilityBonuses(playerClass);
+  if (ab[key]) total += ab[key];
   return total;
 }
 
@@ -46,162 +280,7 @@ function getAttackBonus(key) {
   return total;
 }
 
-function upgradeSkill(skill) {
-  if (player.skillPoints < skill.cost) {
-    playSound('ui_error');
-    return;
-  }
-  const lvl = getSkillLevel(skill.id);
-  if (lvl >= skill.max) {
-    playSound('ui_skill_maxed');
-    return;
-  }
-  player.skillPoints -= skill.cost;
-  player.skills[skill.id] = lvl + 1;
-  playSound('ui_skill_buy');
-  renderSkillTree();
-}
-
-function renderSkillTree() {
-  document.getElementById('skillPoints').textContent = player.skillPoints;
-
-  const tabAbilities = document.getElementById('tabAbilities');
-  const tabAttack = document.getElementById('tabAttack');
-  if (tabAbilities) tabAbilities.classList.toggle('active', currentSkillTab === 'abilities');
-  if (tabAttack) tabAttack.classList.toggle('active', currentSkillTab === 'attack');
-
-  const skillMenu = document.getElementById('skillMenu');
-  if (skillMenu) skillMenu.classList.toggle('attackMode', currentSkillTab === 'attack');
-
-  const container = document.getElementById('skillColumns');
-  container.innerHTML = '';
-
-  const tree = currentSkillTab === 'abilities' ? skillTrees[playerClass] : attackTrees[playerClass];
-  if (!tree) return;
-
-  if (currentSkillTab === 'attack') {
-    const branch = tree[0];
-    if (!branch || !branch.skills) return;
-
-    const allSkills = branch.skills;
-    const topCount = Math.min(3, allSkills.length);
-    const bottomCount = Math.min(6 - topCount, Math.max(0, allSkills.length - topCount));
-
-    const topSkills = allSkills.slice(0, topCount);
-    const bottomSkills = allSkills.slice(topCount, topCount + bottomCount).slice().reverse();
-
-    function createSkillNodeElementForSnake(skill) {
-      const lvl = getSkillLevel(skill.id);
-      const isMaxed = lvl >= skill.max;
-      const idxInAll = allSkills.findIndex(s => s.id === skill.id);
-      const prevId = idxInAll > 0 ? allSkills[idxInAll - 1].id : null;
-      const prevUnlocked = idxInAll === 0 || (prevId && getSkillLevel(prevId) > 0);
-      const canAfford = player.skillPoints >= skill.cost;
-
-      const node = document.createElement('div');
-      node.className = 'skill-node' + (isMaxed ? ' maxed' : (!prevUnlocked ? ' locked' : (lvl > 0 ? ' unlocked' : '')));
-      node.innerHTML = `<div class="sn-name">${skill.name}</div><div class="sn-desc">${skill.desc}</div><div class="sn-level">Ур. ${lvl}/${skill.max}</div><div class="sn-cost">${isMaxed ? 'МАКС' : 'ЦЕНА: ' + skill.cost + ' ОЧ.'}</div>`;
-
-      if (!isMaxed && prevUnlocked && canAfford) {
-        node.onmouseover = () => playSound('ui_hover');
-        node.onclick = () => upgradeSkill(skill);
-      }
-      return node;
-    }
-
-    const topRow = document.createElement('div');
-    topRow.className = 'skill-row top';
-    topSkills.forEach((skill, idx) => {
-      const col = document.createElement('div');
-      col.className = 'skill-col';
-      const title = document.createElement('div');
-      title.className = 'skill-col-title';
-      title.textContent = idx === 0 ? branch.title : '';
-      col.appendChild(title);
-      const nodeWrap = document.createElement('div');
-      nodeWrap.style.position = 'relative';
-      nodeWrap.style.zIndex = '1';
-      nodeWrap.appendChild(createSkillNodeElementForSnake(skill));
-      col.appendChild(nodeWrap);
-      if (idx < topSkills.length - 1) {
-        const line = document.createElement('div');
-        line.className = 'skill-connector-line h-line right' + (getSkillLevel(topSkills[idx].id) > 0 ? ' unlocked' : '');
-        col.appendChild(line);
-      }
-      topRow.appendChild(col);
-    });
-    container.appendChild(topRow);
-
-    const bottomRow = document.createElement('div');
-    bottomRow.className = 'skill-row bottom';
-    bottomSkills.forEach((skill, idx) => {
-      const col = document.createElement('div');
-      col.className = 'skill-col';
-      const title = document.createElement('div');
-      title.className = 'skill-col-title';
-      title.textContent = '';
-      col.appendChild(title);
-      const nodeWrap = document.createElement('div');
-      nodeWrap.style.position = 'relative';
-      nodeWrap.style.zIndex = '1';
-      nodeWrap.appendChild(createSkillNodeElementForSnake(skill));
-      col.appendChild(nodeWrap);
-      if (idx < bottomSkills.length - 1) {
-        const line = document.createElement('div');
-        line.className = 'skill-connector-line h-line right' + (getSkillLevel(bottomSkills[idx].id) > 0 ? ' unlocked' : '');
-        col.appendChild(line);
-      }
-      bottomRow.appendChild(col);
-    });
-    container.appendChild(bottomRow);
-
-    if (topSkills.length > 0 && bottomSkills.length > 0) {
-      const rightTop = topSkills[topSkills.length - 1];
-      const rightBottom = bottomSkills[0];
-      const isUnlocked = getSkillLevel(rightTop.id) > 0;
-      const lastTopCol = topRow.children[topRow.children.length - 1];
-      if (lastTopCol) {
-        const corner = document.createElement('div');
-        corner.className = 'corner-line top-right' + (isUnlocked ? ' unlocked' : '');
-        lastTopCol.appendChild(corner);
-      }
-    }
-    return;
-  }
-
-  tree.forEach(branch => {
-    const col = document.createElement('div');
-    col.className = 'skill-col';
-    const title = document.createElement('div');
-    title.className = 'skill-col-title';
-    title.textContent = branch.title;
-    col.appendChild(title);
-    branch.skills.forEach((skill, idx) => {
-      if (idx > 0) {
-        const conn = document.createElement('div');
-        conn.className = 'skill-connector' + (getSkillLevel(branch.skills[idx-1].id) > 0 ? ' unlocked' : '');
-        col.appendChild(conn);
-      }
-      const lvl = getSkillLevel(skill.id);
-      const isMaxed = lvl >= skill.max;
-      const prevUnlocked = idx === 0 || getSkillLevel(branch.skills[idx-1].id) > 0;
-      const canAfford = player.skillPoints >= skill.cost;
-      const node = document.createElement('div');
-      node.className = 'skill-node' + (isMaxed ? ' maxed' : (!prevUnlocked ? ' locked' : (lvl > 0 ? ' unlocked' : '')));
-      node.innerHTML = `<div class="sn-name">${skill.name}</div><div class="sn-desc">${skill.desc}</div><div class="sn-level">Ур. ${lvl}/${skill.max}</div><div class="sn-cost">${isMaxed ? 'МАКС' : 'ЦЕНА: ' + skill.cost + ' ОЧ.'}</div>`;
-      if (!isMaxed && prevUnlocked && canAfford) {
-        node.onmouseover = () => playSound('ui_hover');
-        node.onclick = () => upgradeSkill(skill);
-      }
-      col.appendChild(node);
-    });
-    container.appendChild(col);
-  });
-}
-
-function switchSkillTab(tab) {
-  if (currentSkillTab === tab) return;
-  currentSkillTab = tab;
-  playSound('ui_click');
-  renderSkillTree();
+function getAbilityBonus(key) {
+  const ab = getAbilityBonuses(playerClass);
+  return ab[key] || 0;
 }

@@ -69,7 +69,7 @@
   <span class="key">1</span> <span class="key">2</span> СПОСОБНОСТИ
   <span class="key">3</span> УЛЬТА (НАКОПИТЬ)
   <span class="key">SHIFT</span> РЫВОК
-  <span class="key">E</span> ПРОКАЧКА
+  <span class="key">P</span> НАВЫКИ
   <span class="key">F</span> ВЗЯТЬ
 </div>
 
@@ -97,44 +97,64 @@
   <h2>ПАУЗА</h2>
   <div class="pause-btns">
     <button onclick="resumeGame()">ВЕРНУТЬСЯ</button>
-    <button onclick="openSkillsFromPause()">МЕНЮ ПРОКАЧКИ</button>
+    <button onclick="openSkillsFromPause()">МЕНЮ НАВЫКОВ [P]</button>
     <button onclick="location.reload()">ПЕРЕЗАПУСК</button>
   </div>
   <div class="pause-hint">ESC — продолжить</div>
 </div>
 
 <div id="skillMenu">
-  <h2>СИСТЕМА МОДИФИКАЦИИ</h2>
-  <div class="skill-points">ДОСТУПНО ОЧКОВ: <span id="menuSkillPoints" style="color: var(--neon-yellow)">0</span></div>
-
-  <div class="upgrade-nav">
-    <button class="nav-arrow left" onclick="changeUpgradePage(-1)">◄</button>
-    <div class="page-indicator">
-      <span id="currentPage">1</span> / <span id="totalPages">4</span>
+  <div class="skill-modal">
+    <div class="modal-header">
+      <button class="arrow-btn left" onclick="changeAbility(-1)">◄</button>
+      <div class="ability-info">
+        <h2 id="abilityName" class="ability-title">ВРАЩ. КЛИНОК</h2>
+        <div class="ability-level">УРОВЕНЬ: <span id="totalAbilityLevel">0</span>/16</div>
+      </div>
+      <button class="arrow-btn right" onclick="changeAbility(1)">►</button>
     </div>
-    <button class="nav-arrow right" onclick="changeUpgradePage(1)">►</button>
+
+    <div class="skill-tree">
+      <svg class="tree-connections" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:0.8"/>
+            <stop offset="50%" style="stop-color:#00f3ff;stop-opacity:0.8"/>
+            <stop offset="100%" style="stop-color:#ff00ff;stop-opacity:0.8"/>
+          </linearGradient>
+        </defs>
+        <path d="M 70,50 L 210,50 L 350,50 L 490,50 L 490,250 L 350,250 L 210,250 L 70,250"
+              stroke="url(#lineGradient)" stroke-width="3" fill="none" opacity="0.7"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="skill-nodes">
+        <div class="skill-node" data-node="0"><div class="node-cost">2</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="1"><div class="node-cost">3</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="2"><div class="node-cost">4</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="3"><div class="node-cost">5</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="4"><div class="node-cost">3</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="5"><div class="node-cost">4</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="6"><div class="node-cost">5</div><div class="node-level">0/2</div></div>
+        <div class="skill-node" data-node="7"><div class="node-cost">6</div><div class="node-level">0/2</div></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="xp-display">
+        <span class="xp-label">ОПЫТ:</span>
+        <span id="currentXP" class="xp-value">0</span>
+        <span class="xp-separator">/</span>
+        <span id="nextLevelXP" class="xp-next">100</span>
+      </div>
+      <div class="skill-points-display">
+        <span class="sp-label">ОЧКИ НАВЫКОВ:</span>
+        <span id="modalSkillPoints" class="sp-value">0</span>
+      </div>
+    </div>
+
+    <button class="close-btn" onclick="toggleSkillMenu()">ЗАКРЫТЬ [P]</button>
   </div>
-
-  <div class="upgrade-pages">
-    <div class="upgrade-page active" data-page="1">
-      <h3 class="page-title">УЛУЧШЕНИЕ СПОСОБНОСТЕЙ</h3>
-      <div class="upgrades-grid" id="abilitiesUpgrades"></div>
-    </div>
-    <div class="upgrade-page" data-page="2">
-      <h3 class="page-title">УЛУЧШЕНИЕ КЛИКОВ</h3>
-      <div class="upgrades-grid" id="clicksUpgrades"></div>
-    </div>
-    <div class="upgrade-page" data-page="3">
-      <h3 class="page-title">КИБЕР-ИМПЛАНТЫ</h3>
-      <div class="upgrades-grid" id="implantsUpgrades"></div>
-    </div>
-    <div class="upgrade-page" data-page="4">
-      <h3 class="page-title">МОДИФИКАЦИЯ ОРУЖИЯ</h3>
-      <div class="upgrades-grid" id="weaponUpgrades"></div>
-    </div>
-  </div>
-
-  <button class="close-btn" onclick="toggleSkillMenu()">ЗАКРЫТЬ [E]</button>
 </div>
 
 <div id="crt-overlay"></div>
@@ -161,7 +181,6 @@
 <script src="js/combat.js"></script>
 <script src="js/update.js"></script>
 <script src="js/render.js"></script>
-<script src="js/upgrades.js"></script>
 <script src="js/lobby.js"></script>
 <script src="js/main.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>

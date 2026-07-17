@@ -455,7 +455,7 @@ function tryAbility2() {
     const a2DmgBonus = 1 + getSkillBonus('a2Dmg');
     const a2DurBonus = 1 + getSkillBonus('a2Duration') / 600;
     const a2SpeedBonus = 1 + getSkillBonus('a2Speed');
-    const a2CountBonus = getSkillLevel('t_a2_count') > 0 ? 1 : 0;
+    const a2CountBonus = Math.floor(getSkillBonus('a2Count'));
     const a2CdBonus = 1 - getSkillBonus('a2Cd');
 
     player.abilityCd2 = Math.floor(900 * Math.max(0.3, a2CdBonus)); // 15 сек база
