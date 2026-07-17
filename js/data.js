@@ -133,7 +133,7 @@ const attackTrees = {
   edgerunner: [
     { title:'РАЗРЕЗ МЕЧОМ (ЛКМ)', skills:[
       { id:'m_atk_dmg', name:'ОСТРОТА', desc:'Урон базовой атаки +20%', cost:1, max:5, bonus:{ atkDmg:0.2 } },
-      { id:'m_atk_speed', name:'БЫСТРОТА', desc:'Скорость атаки +15%', cost:1, max:5, bonus:{ atkSpeed:0.15 } },
+      { id:'m_atk_speed', name:'БЫСТРОТА', desc:'Скорость атаки +15%', cost:1, max:5, bonus:{ atkSpeed:0.3 } },
       { id:'m_atk_range', name:'ДЛИНА КЛИНКА', desc:'Радиус атаки +25%', cost:1, max:3, bonus:{ atkRange:0.25 } },
       { id:'m_atk_crit', name:'ТОЧНОСТЬ', desc:'Шанс крита +10%', cost:2, max:3, bonus:{ atkCrit:0.1 } },
       { id:'m_atk_critdmg', name:'МОЩЬ КРИТА', desc:'Критический урон +50%', cost:2, max:3, bonus:{ atkCritDmg:0.5 } },

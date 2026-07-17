@@ -36,7 +36,7 @@
 
   if (playerClass === 'edgerunner') {
     // ЭДЖРАННЕР - ЛКМ: Анимированный разрез мечом
-    edgerunnerSlashAnim = 12; // длительность анимации в кадрах
+    edgerunnerSlashAnim = 20; // длительность анимации в кадрах
     edgerunnerSlashDir *= -1;
     shake = 4;
     
@@ -76,8 +76,8 @@
       const progress = i / 15;
       const a = startAngle + arcAngle * progress * edgerunnerSlashDir;
       particles.push({ 
-        x: player.x + Math.cos(a) * slashRadius * 0.5, 
-        y: player.y + Math.sin(a) * slashRadius * 0.5, 
+        x: player.x + Math.cos(a) * slashRadius * 0.6, 
+        y: player.y + Math.sin(a) * slashRadius * 0.6, 
         vx: Math.cos(a) * 2 + (Math.random()-0.5)*3, 
         vy: Math.sin(a) * 2 + (Math.random()-0.5)*3, 
         life: 20, color: c.color, size: 4 
@@ -93,8 +93,8 @@
     }
     swordSwings.push({ 
       range: slashRadius, 
-      life: 12, 
-      maxLife: 12, 
+      life: 20, 
+      maxLife: 20, 
       angles: trailAngles, 
       dir: edgerunnerSlashDir,
       isSlash: true
