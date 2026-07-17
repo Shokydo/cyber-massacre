@@ -107,6 +107,8 @@ const IMPLANT_TYPES = [
 
 let pendingPickup = null;
 let skillMenuOpen = false;
+let settingsOpen = false;
+let isRebinding = false;
 
 const attackTrees = {
   melee: [

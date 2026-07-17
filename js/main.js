@@ -9,7 +9,7 @@ function onYouTubeIframeAPIReady() {
     videoId: MUSIC_LOBBY,
     playerVars: { autoplay: 1, loop: 1, playlist: MUSIC_LOBBY, controls: 0, disablekb: 1 },
     events: {
-      onReady: (e) => { e.target.setVolume(40); e.target.playVideo(); }
+      onReady: (e) => { e.target.setVolume(gameSettings ? gameSettings.audio.musicVolume : 40); e.target.playVideo(); }
     }
   });
 }
@@ -17,7 +17,7 @@ function onYouTubeIframeAPIReady() {
 function changeMusic(videoId) {
   if (ytPlayer && ytPlayer.loadVideoById) {
     ytPlayer.loadVideoById(videoId);
-    ytPlayer.setVolume(40);
+    ytPlayer.setVolume(gameSettings ? gameSettings.audio.musicVolume : 40);
   }
 }
 
@@ -30,7 +30,7 @@ function loop() {
 let pauseOpen = false;
 
 function togglePause() {
-  if (!gameRunning || skillMenuOpen) return;
+  if (!gameRunning || skillMenuOpen || settingsOpen) return;
   pauseOpen = !pauseOpen;
   gamePaused = pauseOpen;
   document.getElementById('pauseMenu').classList.toggle('show', pauseOpen);
@@ -102,11 +102,6 @@ window.onerror = function(msg, url, line) {
 };
 
 window.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, ensuring global functions are available...');
-  
-  // Ensure all required functions are available globally
-  if (typeof window.startGame !== 'function' || typeof window.playSound !== 'function') {
-    console.log('Functions not yet available, initializing...');
-    // This will trigger when the main script loads
-  }
+  loadSettings();
+  applyKeybinds();
 });

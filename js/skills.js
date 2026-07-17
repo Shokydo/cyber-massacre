@@ -135,7 +135,7 @@ function getAbilityBonuses(cls) {
 }
 
 function toggleSkillMenu() {
-  if (!gameRunning) return;
+  if (!gameRunning || settingsOpen) return;
   skillMenuOpen = !skillMenuOpen;
   const menu = document.getElementById('skillMenu');
   if (skillMenuOpen) {

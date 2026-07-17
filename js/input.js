@@ -1,28 +1,35 @@
 ﻿document.addEventListener('keydown', e => {
+  if (isRebinding) return;
   const k = e.key.toLowerCase();
   keys[k] = true;
+
   if (lobbyActive) {
     if (k === 'e' || k === 'у') { e.preventDefault(); lobbySelectClass(); }
     return;
   }
-  if (k === 'shift') tryDash();
-  if (k === '1') tryAbility1();
-  if (k === '2') tryAbility2();
-  if (k === '3') tryUlt();
-  if (k === 'p' || k === 'з') { e.preventDefault(); toggleSkillMenu(); }
-  if (k === 'f' || k === 'а') { if (pendingPickup) takePickup(); }
+
   if (k === 'escape') {
     e.preventDefault();
-    if (skillMenuOpen) { toggleSkillMenu(); }
+    if (settingsOpen) { toggleSettings(); }
+    else if (skillMenuOpen) { toggleSkillMenu(); }
     else if (pendingPickup) { skipPickup(); }
     else if (gameRunning) { togglePause(); }
+    return;
   }
+
+  const kb = (typeof gameSettings !== 'undefined' && gameSettings.keybinds) ? gameSettings.keybinds : {};
+
+  if (k === (kb.dash || 'shift')) tryDash();
+  if (k === (kb.ability1 || '1')) tryAbility1();
+  if (k === (kb.ability2 || '2')) tryAbility2();
+  if (k === (kb.ability3 || '3')) tryUlt();
+  if (k === (kb.upgrade || 'p')) { e.preventDefault(); toggleSkillMenu(); }
+  if (k === 'f' || k === 'а') { if (pendingPickup) takePickup(); }
   if (e.code === 'Space') { e.preventDefault(); if (!player.charging) tryAttack(); }
 });
 document.addEventListener('keyup', e => {
   const k = e.key.toLowerCase();
   keys[k] = false;
-  if (e.button === 0 && playerClass === 'tech' && player.charging) fireCharged();
 });
 cv.addEventListener('mousemove', e => {
   const r = cv.getBoundingClientRect();

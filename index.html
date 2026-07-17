@@ -98,6 +98,7 @@
   <div class="pause-btns">
     <button onclick="resumeGame()">ВЕРНУТЬСЯ</button>
     <button onclick="openSkillsFromPause()">МЕНЮ НАВЫКОВ [P]</button>
+    <button onclick="openSettingsFromPause()">НАСТРОЙКИ</button>
     <button onclick="location.reload()">ПЕРЕЗАПУСК</button>
   </div>
   <div class="pause-hint">ESC — продолжить</div>
@@ -173,10 +174,88 @@
   <h2 class="train-text">ПРИБЫТИЕ В СЕКТОР 7...</h2>
 </div>
 
+<!-- ================= МЕНЮ НАСТРОЕК ================= -->
+<div id="settingsMenu">
+  <div class="settings-modal">
+    <div class="settings-header">
+      <h2>СИСТЕМНЫЕ НАСТРОЙКИ</h2>
+      <button class="close-settings" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="settings-tabs">
+      <button class="tab-btn active" onclick="switchTab('keybinds', this)">КЛАВИШИ</button>
+      <button class="tab-btn" onclick="switchTab('audio', this)">АУДИО</button>
+      <button class="tab-btn" onclick="switchTab('interface', this)">ИНТЕРФЕЙС</button>
+    </div>
+    <div id="tab-keybinds" class="tab-content active">
+      <div class="keybind-list">
+        <div class="keybind-row">
+          <span>Рывок</span>
+          <button class="key-btn" data-action="dash" onclick="startRebind(this)">SHIFT</button>
+        </div>
+        <div class="keybind-row">
+          <span>Способность 1</span>
+          <button class="key-btn" data-action="ability1" onclick="startRebind(this)">1</button>
+        </div>
+        <div class="keybind-row">
+          <span>Способность 2</span>
+          <button class="key-btn" data-action="ability2" onclick="startRebind(this)">2</button>
+        </div>
+        <div class="keybind-row">
+          <span>Ульта</span>
+          <button class="key-btn" data-action="ability3" onclick="startRebind(this)">3</button>
+        </div>
+        <div class="keybind-row">
+          <span>Меню навыков</span>
+          <button class="key-btn" data-action="upgrade" onclick="startRebind(this)">P</button>
+        </div>
+      </div>
+      <p class="settings-hint">* Нажмите на кнопку, затем нажмите новую клавишу для переназначения.</p>
+    </div>
+    <div id="tab-audio" class="tab-content">
+      <div class="audio-sliders">
+        <div class="slider-row">
+          <span>Музыка (YouTube)</span>
+          <input type="range" min="0" max="100" value="40" data-setting="musicVolume" oninput="updateAudioSetting(this)">
+          <span class="slider-value">40%</span>
+        </div>
+        <div class="slider-row">
+          <span>Звуки интерфейса</span>
+          <input type="range" min="0" max="100" value="70" data-setting="uiVolume" oninput="updateAudioSetting(this)">
+          <span class="slider-value">70%</span>
+        </div>
+        <div class="slider-row">
+          <span>Стрельба</span>
+          <input type="range" min="0" max="100" value="80" data-setting="shootVolume" oninput="updateAudioSetting(this)">
+          <span class="slider-value">80%</span>
+        </div>
+        <div class="slider-row">
+          <span>Хитсаунд</span>
+          <input type="range" min="0" max="100" value="90" data-setting="hitVolume" oninput="updateAudioSetting(this)">
+          <span class="slider-value">90%</span>
+        </div>
+      </div>
+    </div>
+    <div id="tab-interface" class="tab-content">
+      <div class="interface-controls">
+        <div class="checkbox-row">
+          <input type="checkbox" id="crtToggle" checked onchange="toggleCRT(this.checked)">
+          <label for="crtToggle">Эффект шума (CRT) на экране</label>
+        </div>
+        <div class="config-actions">
+          <button class="cyber-btn small" onclick="exportConfig()">ЭКСПОРТ КОНФИГА</button>
+          <button class="cyber-btn small" onclick="importConfig()">ИМПОРТ КОНФИГА</button>
+        </div>
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveSettingsAndClose()">СОХРАНИТЬ И ЗАКРЫТЬ</button>
+  </div>
+</div>
+
 <script src="js/audio.js"></script>
 <script src="js/data.js"></script>
 <script src="js/input.js"></script>
 <script src="js/skills.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/init.js"></script>
 <script src="js/combat.js"></script>
 <script src="js/update.js"></script>

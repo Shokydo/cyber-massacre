@@ -493,3 +493,153 @@ body {
 }
 
 /* --- АНИМАЦИИ --- */
+
+/* --- МЕНЮ НАСТРОЕК --- */
+#settingsMenu {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 300;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+}
+#settingsMenu.show { display: flex; }
+
+.settings-modal {
+  background: linear-gradient(135deg, rgba(10, 15, 40, 0.98), rgba(5, 10, 20, 0.98));
+  border: 3px solid var(--neon-cyan);
+  padding: 30px;
+  width: 680px; max-width: 95vw;
+  clip-path: polygon(0 0, 100% 0, 100% 94%, 96% 100%, 4% 100%, 0 94%);
+  box-shadow: 0 0 60px rgba(0, 243, 255, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.settings-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 25px; border-bottom: 2px solid var(--neon-pink); padding-bottom: 15px;
+}
+.settings-header h2 {
+  font-family: 'Orbitron', sans-serif; color: var(--neon-yellow);
+  font-size: 24px; letter-spacing: 3px;
+  text-shadow: 0 0 15px var(--neon-yellow); margin: 0;
+}
+.close-settings {
+  background: transparent; border: 2px solid var(--neon-red);
+  color: var(--neon-red); font-size: 22px; width: 38px; height: 38px;
+  cursor: pointer; transition: all 0.3s;
+  font-family: 'Orbitron', sans-serif;
+}
+.close-settings:hover {
+  background: var(--neon-red); color: #000;
+  box-shadow: 0 0 20px var(--neon-red);
+}
+
+.settings-tabs {
+  display: flex; gap: 10px; margin-bottom: 25px;
+}
+.tab-btn {
+  flex: 1; padding: 12px;
+  background: rgba(0, 0, 0, 0.5); border: 2px solid #333;
+  color: #666; font-family: 'Orbitron', sans-serif; font-size: 13px;
+  cursor: pointer; transition: all 0.3s;
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+}
+.tab-btn.active, .tab-btn:hover {
+  border-color: var(--neon-cyan); color: var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.1);
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.tab-content { display: none; min-height: 250px; }
+.tab-content.active { display: block; }
+
+/* Клавиши */
+.keybind-list { display: flex; flex-direction: column; gap: 10px; }
+.keybind-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 15px; background: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid var(--neon-cyan);
+}
+.keybind-row span {
+  font-family: 'Share Tech Mono', monospace; color: var(--neon-cyan); font-size: 15px;
+}
+.key-btn {
+  width: 110px; padding: 8px;
+  background: rgba(255, 0, 255, 0.1); border: 2px solid var(--neon-pink);
+  color: var(--neon-pink); font-family: 'Orbitron', sans-serif; font-size: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.key-btn:hover {
+  background: var(--neon-pink); color: #000;
+  box-shadow: 0 0 15px var(--neon-pink);
+}
+.key-btn.listening {
+  background: var(--neon-yellow); color: #000; border-color: var(--neon-yellow);
+  animation: pulse 1s infinite;
+}
+.settings-hint {
+  margin-top: 15px; color: #555; font-size: 12px;
+  text-align: center; font-style: italic;
+}
+
+/* Аудио */
+.audio-sliders { display: flex; flex-direction: column; gap: 18px; }
+.slider-row { display: flex; align-items: center; gap: 15px; }
+.slider-row span:first-child {
+  width: 180px; font-family: 'Share Tech Mono', monospace; color: var(--neon-cyan);
+}
+.slider-row input[type="range"] {
+  flex: 1; -webkit-appearance: none; height: 6px;
+  background: #222; border: 1px solid var(--neon-cyan); outline: none;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px;
+  background: var(--neon-pink); cursor: pointer;
+  box-shadow: 0 0 10px var(--neon-pink);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+.slider-value {
+  width: 50px; text-align: right;
+  font-family: 'Orbitron', sans-serif; color: var(--neon-yellow); font-size: 14px;
+}
+
+/* Интерфейс */
+.interface-controls { display: flex; flex-direction: column; gap: 18px; }
+.cyber-btn {
+  padding: 14px; background: rgba(0, 243, 255, 0.1);
+  border: 2px solid var(--neon-cyan); color: var(--neon-cyan);
+  font-family: 'Orbitron', sans-serif; font-size: 14px;
+  cursor: pointer; transition: all 0.3s;
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+}
+.cyber-btn:hover {
+  background: var(--neon-cyan); color: #000;
+  box-shadow: 0 0 20px var(--neon-cyan);
+}
+.cyber-btn.small { padding: 10px 15px; font-size: 12px; }
+.config-actions { display: flex; gap: 12px; }
+
+.checkbox-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 20px; height: 20px; accent-color: var(--neon-pink); cursor: pointer;
+}
+.checkbox-row label {
+  font-family: 'Share Tech Mono', monospace; color: var(--neon-cyan); font-size: 15px;
+  cursor: pointer;
+}
+
+.save-btn {
+  margin-top: 25px; width: 100%; padding: 14px;
+  background: rgba(0, 255, 157, 0.15); border: 3px solid var(--neon-green);
+  color: var(--neon-green); font-family: 'Orbitron', sans-serif; font-size: 16px;
+  cursor: pointer; transition: all 0.3s;
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+  letter-spacing: 3px;
+}
+.save-btn:hover {
+  background: var(--neon-green); color: #000;
+  box-shadow: 0 0 30px var(--neon-green);
+}
