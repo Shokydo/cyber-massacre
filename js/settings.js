@@ -50,7 +50,7 @@ window.gamePaused = window.gamePaused ?? false;
 
 
 function loadSettings() {
-  const saved = localStorage.getItem('neonRogueSettings');
+  const saved = localStorage.getItem('cyberMassacreSettings');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -103,7 +103,7 @@ function formatKeyName(key) {
 }
 
 function saveSettings() {
-  localStorage.setItem('neonRogueSettings', JSON.stringify(gameSettings));
+  localStorage.setItem('cyberMassacreSettings', JSON.stringify(gameSettings));
 }
 
 function saveSettingsAndClose() {
