@@ -174,6 +174,30 @@
   <h2 class="train-text">ПРИБЫТИЕ В СЕКТОР 7...</h2>
 </div>
 
+<!-- ================= ДИАЛОГОВОЕ ОКНО ЛОББИ ================= -->
+<div id="lobby-dialog" style="
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(10, 10, 24, 0.95);
+  border: 2px solid #00f3ff;
+  padding: 30px;
+  min-width: 300px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+  z-index: 1000;
+  font-family: 'Orbitron', sans-serif;
+">
+  <div id="dialog-npc-name" style="color: #00f3ff; font-size: 18px; margin-bottom: 10px; text-shadow: 0 0 10px #00f3ff;"></div>
+  <div id="dialog-text" style="color: #fff; margin-bottom: 15px; line-height: 1.6;"></div>
+  <div id="dialog-hint" style="color: #aaa; font-size: 12px;">
+    [ENTER] — Выбрать класс<br>
+    [ESC] — Закрыть
+  </div>
+</div>
+
 <!-- ================= МЕНЮ НАСТРОЕК ================= -->
 <div id="settingsMenu">
   <div class="settings-modal">
@@ -269,7 +293,7 @@
 <script src="js/bootstrap.js"></script>
 <script src="js/audio.js" defer></script>
 <script src="js/data.js" defer></script>
-<script src="js/input.js" defer></script>
+
 <script src="js/skills.js" defer></script>
 <script src="js/settings.js" defer></script>
 <script src="js/enemies.js" defer></script>
@@ -279,6 +303,7 @@
 <script src="js/playerRender.js" defer></script>
 <script src="js/render.js" defer></script>
 <script src="js/lobby.js" defer></script>
+  <script src="js/input.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="https://www.youtube.com/iframe_api" defer></script>
 </body>

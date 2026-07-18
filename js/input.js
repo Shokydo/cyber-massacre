@@ -1,8 +1,8 @@
-﻿// Глобальные переменные для инпута (чтобы lobby.js видел их независимо от порядка загрузки)
+// ���������� ���������� ��� ������ (����� lobby.js ����� �� ���������� �� ������� ��������)
 window.isRebinding = window.isRebinding ?? false;
 window.keys = window.keys ?? {};
-// Не делаем top-level redeclare: isRebinding/keys читаем напрямую из window
-// (иначе при повторной оценке скрипта падает с "already been declared")
+// �� ������ top-level redeclare: isRebinding/keys ������ �������� �� window
+// (����� ��� ��������� ������ ������� ������ � "already been declared")
 // let isRebinding = window.isRebinding;
 // let keys = window.keys;
 
@@ -16,11 +16,21 @@ document.addEventListener('keydown', e => {
         if (k === 'escape') {
             e.preventDefault();
             if (typeof settingsOpen !== 'undefined' && settingsOpen) { toggleSettings(); }
-            else { toggleSettings(); }
+            else if (typeof window.currentDialogNPC !== 'undefined' && window.currentDialogNPC) { closeDialogFromMenu(); }
             return;
         }
-        if (k === 'e' || k === 'у') { e.preventDefault(); if (typeof lobbySelectClass === 'function') lobbySelectClass(); }
-        return;
+        if (k === 'e' || k === '�') {
+            e.preventDefault();
+            if (typeof window.currentDialogNPC !== 'undefined' && !window.currentDialogNPC && typeof lobbySelectClass === 'function') {
+              lobbySelectClass();
+            }
+            return;
+        }
+        if (k === 'enter' || k === 'return') {
+            e.preventDefault();
+            if (typeof window.currentDialogNPC !== 'undefined' && window.currentDialogNPC) { selectClassFromDialog(); }
+            return;
+        }
     }
 
     if (k === 'escape') {
@@ -39,7 +49,7 @@ document.addEventListener('keydown', e => {
     if (k === (kb.ability2 || '2')) { if (typeof tryAbility2 === 'function') tryAbility2(); }
     if (k === (kb.ability3 || '3')) { if (typeof tryUlt === 'function') tryUlt(); }
     if (k === (kb.upgrade || 'p')) { e.preventDefault(); if (typeof toggleSkillMenu === 'function') toggleSkillMenu(); }
-    if (k === 'f' || k === 'а') { if (typeof pendingPickup !== 'undefined' && pendingPickup) { if (typeof takePickup === 'function') takePickup(); } }
+    if (k === 'f' || k === '�') { if (typeof pendingPickup !== 'undefined' && pendingPickup) { if (typeof takePickup === 'function') takePickup(); } }
     if (e.code === 'Space') { e.preventDefault(); if (typeof player !== 'undefined' && !player.charging) { if (typeof tryAttack === 'function') tryAttack(); } }
 });
 
@@ -48,15 +58,15 @@ document.addEventListener('keyup', e => {
     window.keys[k] = false;
 });
 
-// Инициализация мыши ТОЛЬКО после полной загрузки HTML
+// ������������� ���� ������ ����� ������ �������� HTML
 document.addEventListener('DOMContentLoaded', () => {
     const cv = document.getElementById('game');
     if (!cv) {
-        console.error('ОШИБКА: Canvas с id="game" не найден в index.html');
+        console.error('������: Canvas � id="game" �� ������ � index.html');
         return;
     }
 
-    // mouse может быть создан в bootstrap, но если его нет — создаём безопасно
+    // mouse ����� ���� ������ � bootstrap, �� ���� ��� ��� � ������ ���������
     if (typeof mouse === 'undefined' || !mouse) {
         // eslint-disable-next-line no-undef
         window.mouse = window.mouse ?? { x: 0, y: 0, down: false };

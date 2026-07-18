@@ -1,23 +1,71 @@
 // --- LOBBY STATE ---
 let lobbyActive = false;
 let lobbySelectedClass = null;
-// ДОБАВЛЕНО: angle для поворота головы/глаз
-let lobbyPlayer = { x: 0, y: 0, size: 18, speed: 3.5, angle: Math.PI / 2 };
+// ИЗМЕНЕНО: size изменен с 18 на 14, чтобы точно соответствовать игроку в игре (js/data.js)
+// ДОБАВЛЕНО: angle для поворота персонажа и глаза в сторону движения
+let lobbyPlayer = { x: 0, y: 0, size: 14, speed: 3.5, angle: Math.PI / 2 };
 const LOBBY_W = 800;
 const LOBBY_H = 600;
 const LOBBY_WALL = 40;
 
-const lobbyZones = [
-  { cls:'edgerunner', label:'ЭДЖРАННЕР', color:'#f0f', desc:'БЛИЖНИЙ БОЙ',
-    x:100, y:80, w:180, h:130 },
-  { cls:'netrunner', label:'НЕТРАННЕР', color:'#a0f', desc:'ВЗЛОМ И МАГИЯ',
-    x:520, y:80, w:180, h:130 },
-  { cls:'tech',  label:'ТЕХНИК',    color:'#ff0', desc:'ПИСТОЛЕТ И ГАДЖЕТЫ',
-    x:310, y:400, w:180, h:130 }
+// NPC объекты (замена lobbyZones)
+const lobbyNPCs = [
+  {
+    id: 'edgerunner',
+    class: 'edgerunner',
+    name: 'ЭДЖРАННЕР',
+    description: 'БЛИЖНИЙ БОЙ',
+    x: 100, y: 90,  // Сидит ПЕРЕД столом
+    width: 30, height: 30,
+    color: '#f0f',
+    type: 'sitting',
+    dialog: [
+      "Нужна грубая сила?",
+      "Нажми ENTER для выбора класса"
+    ]
+  },
+  {
+    id: 'netrunner',
+    class: 'netrunner',
+    name: 'НЕТРАННЕР',
+    description: 'ВЗЛОМ И МАГИЯ',
+    x: 580, y: 140,  // Стоит ЗА стойкой (стойка x=500, y=150)
+    width: 30, height: 30,
+    color: '#a0f',
+    type: 'standing',
+    behindCounter: true,
+    dialog: [
+      "Сеть ждет тебя...",
+      "Нажми ENTER для выбора класса"
+    ]
+  },
+  {
+    id: 'tech',
+    class: 'tech',
+    name: 'ТЕХНИК',
+    description: 'ПИСТОЛЕТ И ГАДЖЕТЫ',
+    x: 115, y: 450,  // Стоит ПЕРЕД верстаком (верстак x=80, y=430)
+    width: 30, height: 30,
+    color: '#ff0',
+    type: 'standing',
+    dialog: [
+      "Нужны гаджеты?",
+      "Нажми ENTER для выбора класса"
+    ]
+  }
+];
+
+// Объекты окружения
+const lobbyObjects = [
+  { type: 'counter', x: 500, y: 150, width: 150, height: 20, color: '#000' },
+  { type: 'table', x: 80, y: 110, width: 60, height: 40, color: '#420' },  // Стол за которым сидит эджраннер
+  { type: 'workbench', x: 80, y: 430, width: 70, height: 50, color: '#650' }
 ];
 
 let lobbyParticles = [];
 let lobbyNeonTimer = 0;
+window.currentDialogNPC = null; // Текущий NPC в диалоге (нужно для input.js)
+window.lobbyNearestNPC = null; // Ближайший NPC для взаимодействия
 
 function enterLobby() {
   initAudio();
@@ -32,6 +80,8 @@ function enterLobby() {
     lobbyPlayer.x = LOBBY_W / 2;
     lobbyPlayer.y = LOBBY_H / 2;
     lobbyPlayer.angle = Math.PI / 2; // Сброс угла при входе
+    window.currentDialogNPC = null; // Сброс текущего NPC в диалоге
+    window.lobbyNearestNPC = null; // Сброс ближайшего NPC
     lobbyParticles = [];
     for (let i = 0; i < 30; i++) {
       lobbyParticles.push({
@@ -60,13 +110,19 @@ function lobbyLoop() {
 
 function lobbyUpdate() {
   const p = lobbyPlayer;
+  
+  // Блокировать движение если открыт диалог
+  if (window.currentDialogNPC) {
+    return;
+  }
+  
   let dx = 0, dy = 0;
   if (keys['w'] || keys['ц']) dy -= 1;
   if (keys['s'] || keys['ы']) dy += 1;
   if (keys['a'] || keys['ф']) dx -= 1;
   if (keys['d'] || keys['в']) dx += 1;
   
-  // ДОБАВЛЕНО: Расчет угла поворота для отрисовки глаз
+  // ДОБАВЛЕНО: Расчет угла поворота для отрисовки (как в render.js)
   if (dx !== 0 || dy !== 0) {
     p.angle = Math.atan2(dy, dx);
     if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
@@ -78,21 +134,24 @@ function lobbyUpdate() {
   if (nx - p.size/2 >= LOBBY_WALL && nx + p.size/2 <= LOBBY_W - LOBBY_WALL) p.x = nx;
   if (ny - p.size/2 >= LOBBY_WALL && ny + p.size/2 <= LOBBY_H - LOBBY_WALL) p.y = ny;
 
-  lobbySelectedClass = null;
-  const hudLabel = document.getElementById('lobby-class-label');
-  for (const z of lobbyZones) {
-    if (p.x > z.x && p.x < z.x + z.w && p.y > z.y && p.y < z.y + z.h) {
-      lobbySelectedClass = z.cls;
-      hudLabel.textContent = z.label + ' — ' + z.desc + '  |  НАЖМИ E';
-      hudLabel.style.color = z.color;
-      hudLabel.style.borderColor = z.color;
-      hudLabel.style.opacity = '1';
-      break;
+  // Проверка близости к NPC для взаимодействия
+  let nearestNPC = null;
+  let minDistance = 60; // радиус взаимодействия
+
+  for (const npc of lobbyNPCs) {
+    const npcDx = p.x - npc.x;
+    const npcDy = p.y - npc.y;
+    const distance = Math.sqrt(npcDx*npcDx + npcDy*npcDy);
+
+    if (distance < minDistance) {
+      nearestNPC = npc;
     }
   }
-  if (!lobbySelectedClass) {
-    hudLabel.style.opacity = '0';
-  }
+
+  // Сохраняем nearestNPC для использования в lobbyDraw
+  window.lobbyNearestNPC = nearestNPC;
+
+  // Обработка клавиши E теперь в input.js
 
   lobbyNeonTimer += 0.02;
   for (const pt of lobbyParticles) {
@@ -135,31 +194,6 @@ function lobbyDraw() {
   ctx.strokeRect(LOBBY_WALL/2, LOBBY_WALL/2, LOBBY_W - LOBBY_WALL, LOBBY_H - LOBBY_WALL);
   ctx.shadowBlur = 0;
 
-  for (const z of lobbyZones) {
-    const hover = lobbySelectedClass === z.cls;
-    ctx.fillStyle = hover ? z.color + '22' : z.color + '0a';
-    ctx.fillRect(z.x, z.y, z.w, z.h);
-
-    ctx.strokeStyle = z.color;
-    ctx.lineWidth = hover ? 3 : 1.5;
-    ctx.shadowColor = z.color;
-    ctx.shadowBlur = hover ? 20 : 8;
-    ctx.strokeRect(z.x, z.y, z.w, z.h);
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = z.color;
-    ctx.font = 'bold 14px Orbitron, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = z.color;
-    ctx.shadowBlur = 10;
-    ctx.fillText(z.label, z.x + z.w/2, z.y + z.h/2 - 8);
-    ctx.font = '10px "Share Tech Mono", monospace';
-    ctx.fillStyle = '#aaa';
-    ctx.shadowBlur = 0;
-    ctx.fillText(z.desc, z.x + z.w/2, z.y + z.h/2 + 12);
-    ctx.textAlign = 'left';
-  }
-
   for (const pt of lobbyParticles) {
     ctx.globalAlpha = pt.alpha * (0.5 + 0.5 * Math.sin(lobbyNeonTimer * 3 + pt.x));
     ctx.fillStyle = pt.color;
@@ -167,38 +201,107 @@ function lobbyDraw() {
   }
   ctx.globalAlpha = 1;
 
-  // --- ИЗМЕНЕННАЯ ОТРИСОВКА ИГРОКА (Единая система) ---
+  // --- ОТРИСОВКА ОБЪЕКТОВ ОКРУЖЕНИЯ ---
+  for (const obj of lobbyObjects) {
+    ctx.fillStyle = obj.color;
+    if (obj.type === 'counter') {
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 10;
+    }
+    ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+    ctx.shadowBlur = 0;
+  }
+
+  // --- ОТРИСОВКА NPC ---
+  const nearestNPC = window.lobbyNearestNPC || null;
+
+  for (const npc of lobbyNPCs) {
+    // Подсветка при приближении
+    if (npc === nearestNPC) {
+      ctx.shadowColor = npc.color;
+      ctx.shadowBlur = 20;
+    }
+
+    // Отрисовка персонажа NPC
+    ctx.fillStyle = npc.color;
+    if (npc.type === 'sitting') {
+      ctx.fillRect(npc.x - 15, npc.y - 20, 30, 20);
+    } else {
+      ctx.fillRect(npc.x - 15, npc.y - 30, 30, 30);
+    }
+
+    // Имя над NPC
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px "Share Tech Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(npc.name, npc.x, npc.y - 40);
+    ctx.textAlign = 'left';
+
+    ctx.shadowBlur = 0;
+  }
+
+  // --- ПОДСКАЗКА ВЗАИМОДЕЙСТВИЯ ---
+  if (nearestNPC) {
+    ctx.fillStyle = nearestNPC.color;
+    ctx.font = 'bold 14px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('[E] ВЗАИМОДЕЙСТВОВАТЬ', lobbyPlayer.x, lobbyPlayer.y - 50);
+    ctx.textAlign = 'left';
+  }
+
+  // --- ОТРИСОВКА ИГРОКА (синхронизировано с playerRender.js) ---
   const p = lobbyPlayer;
   const isMoving = (keys['w'] || keys['a'] || keys['s'] || keys['d'] || keys['ц'] || keys['ф'] || keys['в'] || keys['ы']);
   const p3DTime = Date.now() * 0.006;
   const pBob = isMoving ? Math.sin(p3DTime * 2.5) * 3 : Math.sin(p3DTime * 1.2) * 1.5;
   
   const renderY = p.y + pBob;
-  const bodySize = 24;
-  const headSize = 12;
-  const color = '#ffffff'; // Строго белый
-  const armLen = 0;        // Без рук
+  
+  // Используем drawChar2D из playerRender.js для синхронизации с игрой
+  // bodySize = 14 (как в data.js), headSize = 12 (пропорция 20/24 от 14 = ~11.67, округляем до 12)
+  const bodySize = p.size;
+  const headSize = Math.round(bodySize * (20 / 24));
+  
+  if (typeof drawChar2D === 'function') {
+    ctx.save();
+    drawChar2D(p.x, renderY, bodySize, headSize, '#ffffff', p.angle, 0, false);
+    
+    // Дополнительное неоновое свечение для лобби
+    ctx.shadowColor = '#00f3ff';
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.15;
+    ctx.fillRect(p.x - bodySize/2 - 2, renderY - bodySize - 2, bodySize + 4, bodySize + headSize + 4);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  } else {
+    // Фоллбек, если drawChar2D не загружен
+    ctx.save();
+    ctx.translate(p.x, renderY);
+    ctx.rotate(p.angle);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#00f3ff';
+    ctx.shadowBlur = 15;
+    ctx.fillRect(-bodySize/2, -bodySize, bodySize, bodySize);
+    
+    // Голова
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-headSize/2, -bodySize - headSize, headSize, headSize);
+    
+    // Глаз для видимости поворота
+    ctx.fillStyle = '#000';
+    ctx.shadowBlur = 0;
+    ctx.fillRect(2, -bodySize - headSize/2 - 1, 6, 3);
+    ctx.restore();
+  }
 
-  // Вызов функции из render.js
-  drawChar2D(p.x, renderY, bodySize, headSize, color, p.angle, armLen, true);
-
-  // Неоновая обводка лобби (адаптирована под новую высоту персонажа)
-  ctx.save();
-  ctx.shadowColor = '#00f3ff';
-  ctx.shadowBlur = 15;
-  ctx.strokeStyle = '#00f3ff';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(p.x - bodySize / 2, renderY - bodySize, bodySize, bodySize + headSize);
-  ctx.shadowBlur = 0;
-  ctx.restore();
-
-  // Подпись "ТЫ" (адаптирована под новую высоту)
+  // Подпись "ТЫ" (с учетом покачивания)
   ctx.fillStyle = '#00f3ff';
   ctx.font = '10px "Share Tech Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('ТЫ', p.x, renderY - bodySize - headSize - 8);
+  ctx.fillText('ТЫ', p.x, renderY - bodySize - headSize - 5);
   ctx.textAlign = 'left';
-  // -------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   const signPulse = 0.7 + 0.3 * Math.sin(lobbyNeonTimer * 2);
   ctx.globalAlpha = signPulse;
@@ -216,18 +319,98 @@ function lobbyDraw() {
 }
 
 function lobbySelectClass() {
-  if (!lobbyActive || !lobbySelectedClass) return;
-  playSound('ui_click');
-  lobbyActive = false;
+  // Если есть ближайший NPC, открываем диалог с ним
+  if (window.lobbyNearestNPC) {
+    openDialog(window.lobbyNearestNPC);
+  }
+}
 
-  window.__lobbyLoopStarted = false;
+window.enterLobby = enterLobby;
+window.lobbySelectClass = lobbySelectClass;
 
+// --- ФУНКЦИИ ДИАЛОГОВОЙ СИСТЕМЫ ---
+
+// Показать подсказку взаимодействия при приближении к NPC
+function showInteractionPrompt(npc) {
+  const hint = document.getElementById('lobby-hint');
+  hint.textContent = `ВЗАИМОДЕЙСТВОВАТЬ С ${npc.name} [E]`;
+  hint.style.color = npc.color;
+  hint.style.borderColor = npc.color;
+  hint.style.opacity = '1';
+}
+
+// Открыть диалог с NPC
+function openDialog(npc) {
+  window.currentDialogNPC = npc;
+  const dialogBox = document.getElementById('lobby-dialog');
+  const npcName = document.getElementById('dialog-npc-name');
+  const dialogText = document.getElementById('dialog-text');
+  const dialogHint = document.getElementById('dialog-hint');
+
+  dialogBox.style.display = 'block';
+  dialogBox.style.borderColor = npc.color;
+  dialogBox.style.boxShadow = `0 0 30px ${npc.color}4d`;
+  npcName.textContent = npc.name;
+  npcName.style.color = npc.color;
+  npcName.style.textShadow = `0 0 10px ${npc.color}`;
+  dialogText.innerHTML = npc.dialog.join('<br>');
+  dialogHint.style.color = '#aaa';
+}
+
+// Закрыть диалог
+function closeDialog() {
+  window.currentDialogNPC = null;
+  const dialogBox = document.getElementById('lobby-dialog');
+  const hint = document.getElementById('lobby-hint');
+
+  dialogBox.style.display = 'none';
+  dialogBox.style.boxShadow = '0 0 30px rgba(0, 243, 255, 0.3)';
+  hint.style.opacity = '0';
+  
+  // Обновляем lobbyNearestNPC после закрытия диалога
+  // (на случай если игрок отошел от NPC во время диалога)
+  const p = lobbyPlayer;
+  let nearestNPC = null;
+  let minDistance = 60;
+  for (const npc of lobbyNPCs) {
+    const dx = p.x - npc.x;
+    const dy = p.y - npc.y;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    if (distance < minDistance) {
+      nearestNPC = npc;
+    }
+  }
+  window.lobbyNearestNPC = nearestNPC;
+}
+
+// Обработчик выбора класса из диалога
+function selectClassFromDialog() {
+  if (window.currentDialogNPC) {
+    playSound('ui_click');
+    const selectedClass = window.currentDialogNPC.class; // Сохраняем класс ПЕРЕД закрытием диалога
+    closeDialog();
+    setTimeout(() => {
+      startGame(selectedClass);
+      changeMusic(MUSIC_GAME);
+    }, 100);
+  }
+}
+
+// Обработчик закрытия диалога
+function closeDialogFromMenu() {
+  closeDialog();
+}
+
+// Функция для запуска выбора класса (вызывается из меню или диалога)
+function openLobbyDialog() {
+  closeDialog();
   const fade = document.getElementById('fade-overlay');
   const hud = document.getElementById('lobby-hud');
+  const train = document.getElementById('train-sequence');
   hud.style.opacity = '0';
   fade.style.opacity = '1';
+
   setTimeout(() => {
-    const train = document.getElementById('train-sequence');
     train.style.display = 'flex';
     fade.style.opacity = '0';
 
@@ -236,12 +419,14 @@ function lobbySelectClass() {
       setTimeout(() => {
         train.style.display = 'none';
         fade.style.opacity = '0';
-        startGame(lobbySelectedClass);
-        changeMusic(MUSIC_GAME);
-      }, 1500);
-    }, 4500);
+        //[startGame с lobbySelectedClass удален - теперь выбор через NPC]
+      }, 4500);
+    }, 1500);
   }, 1500);
 }
 
-window.enterLobby = enterLobby;
-window.lobbySelectClass = lobbySelectClass;
+// Экспорт функций для input.js
+window.openDialog = openDialog;
+window.closeDialog = closeDialog;
+window.selectClassFromDialog = selectClassFromDialog;
+window.closeDialogFromMenu = closeDialogFromMenu;
